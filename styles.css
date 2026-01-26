@@ -1,0 +1,140 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.scoreboard {
+    display: flex;
+    gap: 30px;
+    flex: 1;
+}
+
+.player {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f5f5f5;
+}
+
+.player.white {
+    border: 3px solid #ddd;
+}
+
+.player.black {
+    border: 3px solid #333;
+    background: #2a2a2a;
+    color: white;
+}
+
+.player h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.captured-pieces {
+    font-size: 1.5em;
+    min-height: 30px;
+    color: #888;
+}
+
+.player.black .captured-pieces {
+    color: #aaa;
+}
+
+.turn-info {
+    font-size: 1.3em;
+    font-weight: bold;
+    padding: 15px 25px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    min-width: 150px;
+    text-align: center;
+}
+
+#resetBtn {
+    padding: 12px 25px;
+    font-size: 1em;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-weight: bold;
+}
+
+#resetBtn:hover {
+    background: #5568d3;
+}
+
+#resetBtn:active {
+    transform: scale(0.98);
+}
+
+#chessBoard {
+    display: block;
+    margin: 0 auto;
+    border: 3px solid #333;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .game-info {
+        flex-direction: column;
+    }
+
+    .scoreboard {
+        width: 100%;
+    }
+
+    #chessBoard {
+        width: 100%;
+        height: auto;
+    }
+}
