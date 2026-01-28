@@ -3,27 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraChess</title>
+    <title>Gordon Ramsay's Chess Battlefield</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>AuraChess</h1>
-        <div class="game-info">
-            <div class="scoreboard">
-                <div class="player white">
-                    <h3>White</h3>
-                    <div class="captured-pieces" id="whiteCaptured"></div>
-                </div>
-                <div class="player black">
-                    <h3>Black</h3>
-                    <div class="captured-pieces" id="blackCaptured"></div>
-                </div>
+        <h1>GORDON RAMSAY'S CHESS BATTLEFIELD</h1>
+        <h2 class="subtitle">British Soldiers vs Monkeys</h2>
+
+        <!-- POW / Hostage Area -->
+        <div class="pow-area">
+            <div class="pow-section">
+                <div class="pow-label">CAPTURED MONKEYS</div>
+                <div class="pow-cage" id="powMonkeys"></div>
             </div>
-            <div class="turn-info" id="turnInfo">White's Turn</div>
-            <button id="resetBtn">Reset Game</button>
+            <div class="pow-center">
+                <span>P.O.W.</span>
+            </div>
+            <div class="pow-section">
+                <div class="pow-label">CAPTURED SOLDIERS</div>
+                <div class="pow-cage" id="powSoldiers"></div>
+            </div>
         </div>
-        <canvas id="chessBoard" width="640" height="640"></canvas>
+
+        <!-- Main Game Area -->
+        <div class="game-area">
+            <!-- Chess Board -->
+            <div class="board-wrapper">
+                <canvas id="chessBoard" width="640" height="640"></canvas>
+            </div>
+
+            <!-- Gordon Ramsay Panel -->
+            <div class="ramsay-panel">
+                <div class="ramsay-header">
+                    <canvas id="ramsayFace" width="128" height="128"></canvas>
+                    <div class="ramsay-name">CHEF RAMSAY</div>
+                </div>
+                <div class="ramsay-speech" id="ramsaySpeech">
+                    <p id="ramsayText">RIGHT THEN! Let's see what you've got, you absolute DONUT! I'm going to crush your pathetic monkey army!</p>
+                </div>
+                <div class="ramsay-controls">
+                    <div class="turn-info" id="turnInfo">Gordon Ramsay is thinking...</div>
+                    <button id="resetBtn">NEW GAME, YOU DONKEY!</button>
+                </div>
+                <div class="ollama-status" id="ollamaStatus">Connecting to Ollama...</div>
+            </div>
+        </div>
     </div>
 
     <script src="game.js"></script>

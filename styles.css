@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,136 +7,376 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'VT323', monospace;
+    background: #0a0a0a;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(34,69,34,0.08) 50px, rgba(34,69,34,0.08) 51px),
+        repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(34,69,34,0.08) 50px, rgba(34,69,34,0.08) 51px);
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     padding: 20px;
+    color: #e0d8c0;
 }
 
 .container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 900px;
+    background: linear-gradient(180deg, #1a1a0e 0%, #0d0d08 100%);
+    border: 3px solid #4a3c28;
+    border-radius: 4px;
+    padding: 20px;
+    max-width: 1100px;
     width: 100%;
+    box-shadow:
+        0 0 40px rgba(0,0,0,0.8),
+        inset 0 0 60px rgba(0,0,0,0.3),
+        0 0 10px rgba(74,60,40,0.3);
 }
 
 h1 {
     text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 2.5em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    color: #cc2222;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.4em;
+    margin-bottom: 4px;
+    text-shadow:
+        2px 2px 0 #000,
+        -1px -1px 0 #000,
+        0 0 10px rgba(204,34,34,0.5);
+    letter-spacing: 2px;
 }
 
-.game-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.scoreboard {
-    display: flex;
-    gap: 30px;
-    flex: 1;
-}
-
-.player {
-    flex: 1;
-    padding: 15px;
-    border-radius: 10px;
-    background: #f5f5f5;
-}
-
-.player.white {
-    border: 3px solid #ddd;
-}
-
-.player.black {
-    border: 3px solid #333;
-    background: #2a2a2a;
-    color: white;
-}
-
-.player h3 {
-    margin-bottom: 10px;
-    font-size: 1.2em;
-}
-
-.captured-pieces {
-    font-size: 1.5em;
-    min-height: 30px;
-    color: #888;
-}
-
-.player.black .captured-pieces {
-    color: #aaa;
-}
-
-.turn-info {
-    font-size: 1.3em;
-    font-weight: bold;
-    padding: 15px 25px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    min-width: 150px;
+.subtitle {
     text-align: center;
+    color: #8a7a5a;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6em;
+    margin-bottom: 16px;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 
-#resetBtn {
-    padding: 12px 25px;
-    font-size: 1em;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    font-weight: bold;
+/* ===== POW / HOSTAGE AREA ===== */
+.pow-area {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 16px;
+    border: 2px solid #3a2a1a;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #1a1208 0%, #0e0c06 100%);
+    overflow: hidden;
 }
 
-#resetBtn:hover {
-    background: #5568d3;
+.pow-section {
+    flex: 1;
+    padding: 8px 12px;
+    min-height: 80px;
 }
 
-#resetBtn:active {
-    transform: scale(0.98);
+.pow-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5em;
+    color: #aa3333;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 1px;
+}
+
+.pow-cage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    min-height: 48px;
+    padding: 4px;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 6px,
+        rgba(80,60,40,0.3) 6px,
+        rgba(80,60,40,0.3) 8px
+    );
+    border: 1px solid #2a1a0a;
+    border-radius: 2px;
+    image-rendering: pixelated;
+}
+
+.pow-cage canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.pow-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    border-left: 2px solid #3a2a1a;
+    border-right: 2px solid #3a2a1a;
+    background: #0a0804;
+}
+
+.pow-center span {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7em;
+    color: #cc2222;
+    text-shadow: 0 0 8px rgba(204,34,34,0.6);
+    writing-mode: vertical-lr;
+    letter-spacing: 4px;
+}
+
+/* ===== GAME AREA ===== */
+.game-area {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.board-wrapper {
+    flex-shrink: 0;
 }
 
 #chessBoard {
     display: block;
-    margin: 0 auto;
-    border: 3px solid #333;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 3px solid #4a3c28;
+    border-radius: 2px;
+    box-shadow:
+        0 0 20px rgba(0,0,0,0.6),
+        inset 0 0 1px rgba(255,255,255,0.1);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    cursor: pointer;
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
+/* ===== GORDON RAMSAY PANEL ===== */
+.ramsay-panel {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
-    h1 {
-        font-size: 2em;
-    }
+.ramsay-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, #1a1208 0%, #2a1a0e 100%);
+    border: 2px solid #4a3c28;
+    border-radius: 4px;
+}
 
-    .game-info {
+#ramsayFace {
+    border: 2px solid #666;
+    border-radius: 2px;
+    background: #111;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 96px;
+    height: 96px;
+}
+
+.ramsay-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9em;
+    color: #ffd700;
+    text-shadow:
+        1px 1px 0 #000,
+        0 0 8px rgba(255,215,0,0.4);
+}
+
+.ramsay-speech {
+    background: linear-gradient(135deg, #1a1208 0%, #14100a 100%);
+    border: 2px solid #4a3c28;
+    border-radius: 4px;
+    padding: 14px;
+    min-height: 160px;
+    max-height: 300px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.ramsay-speech::before {
+    content: '"';
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    font-size: 2.5em;
+    color: #4a3c28;
+    font-family: serif;
+    line-height: 1;
+}
+
+.ramsay-speech p {
+    font-family: 'VT323', monospace;
+    font-size: 1.3em;
+    line-height: 1.5;
+    color: #d4c8a0;
+    padding-left: 20px;
+}
+
+.ramsay-speech .angry {
+    color: #ff4444;
+    text-shadow: 0 0 6px rgba(255,68,68,0.3);
+}
+
+.ramsay-speech .mocking {
+    color: #ffaa00;
+}
+
+.ramsay-speech .thinking {
+    color: #888;
+    font-style: italic;
+}
+
+.ramsay-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.turn-info {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6em;
+    padding: 10px;
+    background: #0e0c06;
+    border: 2px solid #3a2a1a;
+    border-radius: 4px;
+    text-align: center;
+    color: #8a7a5a;
+    letter-spacing: 1px;
+}
+
+.turn-info.your-turn {
+    color: #44cc44;
+    border-color: #2a4a2a;
+    text-shadow: 0 0 8px rgba(68,204,68,0.4);
+}
+
+.turn-info.ramsay-turn {
+    color: #cc4444;
+    border-color: #4a2a2a;
+    text-shadow: 0 0 8px rgba(204,68,68,0.4);
+}
+
+.turn-info.game-over {
+    color: #ffd700;
+    border-color: #4a4a2a;
+    text-shadow: 0 0 8px rgba(255,215,0,0.4);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+#resetBtn {
+    padding: 12px 20px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.55em;
+    background: linear-gradient(180deg, #cc2222 0%, #881111 100%);
+    color: #fff;
+    border: 2px solid #ff4444;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    text-shadow: 1px 1px 0 #000;
+}
+
+#resetBtn:hover {
+    background: linear-gradient(180deg, #ee3333 0%, #aa2222 100%);
+    box-shadow: 0 0 12px rgba(204,34,34,0.5);
+}
+
+#resetBtn:active {
+    transform: scale(0.97);
+}
+
+.ollama-status {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.45em;
+    text-align: center;
+    padding: 6px;
+    color: #666;
+    border: 1px solid #2a2a1a;
+    border-radius: 2px;
+    background: #0a0a06;
+}
+
+.ollama-status.connected {
+    color: #44aa44;
+    border-color: #2a4a2a;
+}
+
+.ollama-status.disconnected {
+    color: #aa4444;
+    border-color: #4a2a2a;
+}
+
+/* ===== SCROLLBAR ===== */
+.ramsay-speech::-webkit-scrollbar {
+    width: 6px;
+}
+.ramsay-speech::-webkit-scrollbar-track {
+    background: #0a0804;
+}
+.ramsay-speech::-webkit-scrollbar-thumb {
+    background: #4a3c28;
+    border-radius: 3px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1000px) {
+    .game-area {
         flex-direction: column;
+        align-items: center;
     }
 
-    .scoreboard {
+    .ramsay-panel {
         width: 100%;
+        min-width: unset;
     }
 
     #chessBoard {
         width: 100%;
         height: auto;
+        max-width: 640px;
+    }
+
+    h1 {
+        font-size: 0.9em;
+    }
+
+    .subtitle {
+        font-size: 0.45em;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .pow-area {
+        flex-direction: column;
+    }
+
+    .pow-center {
+        border-left: none;
+        border-right: none;
+        border-top: 2px solid #3a2a1a;
+        border-bottom: 2px solid #3a2a1a;
+        writing-mode: horizontal-tb;
+        padding: 4px;
+    }
+
+    .pow-center span {
+        writing-mode: horizontal-tb;
     }
 }
