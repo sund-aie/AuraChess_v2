@@ -41,6 +41,15 @@
   let capturedMonkeys, capturedSoldiers, moveHistory, animState, ollamaOK;
   let ramsayThinking = false;
 
+  // === API & LEARNING ===
+  const API_BASE = window.location.origin;
+  let playerId = localStorage.getItem('chessPlayerId');
+  if (!playerId) {
+    playerId = 'player_' + Math.random().toString(36).substr(2, 12);
+    localStorage.setItem('chessPlayerId', playerId);
+  }
+  let learnedPatterns = null;
+
   // === SPRITE CACHE ===
   const sprites = {};
 
@@ -1113,10 +1122,56 @@
       score -= 20;
     }
 
+    // === LEARNED PATTERN ADAPTATIONS ===
+    if (learnedPatterns && learnedPatterns.aiAdaptations && learnedPatterns.aiAdaptations.enabled) {
+      score += applyLearnedPatterns(move);
+    }
+
     // Random factor for variety
     score += Math.random() * 25;
 
     return score;
+  }
+
+  function applyLearnedPatterns(move) {
+    if (!learnedPatterns || !learnedPatterns.aiAdaptations) return 0;
+
+    const adapt = learnedPatterns.aiAdaptations;
+    const bonuses = adapt.bonuses || {};
+    let bonus = 0;
+
+    // Target player's weak squares
+    if (adapt.targetSquares) {
+      const squareKey = `${move.to.row},${move.to.col}`;
+      if (adapt.targetSquares.includes(squareKey)) {
+        bonus += bonuses.weakSquareBonus || 15;
+      }
+    }
+
+    // Target overused pieces (try to capture them)
+    if (adapt.targetPieces && move.capture) {
+      if (adapt.targetPieces.includes(move.capture.type)) {
+        bonus += bonuses.pieceTargetBonus || 10;
+      }
+    }
+
+    // Counter-opening strategy
+    if (adapt.counterOpening && moveHistory.length < 10) {
+      if (adapt.counterOpening === 'knight_development' && move.piece.type === KNIGHT) {
+        bonus += 10;
+      } else if (adapt.counterOpening === 'pawn_center_control' && move.piece.type === PAWN) {
+        if (move.to.col >= 3 && move.to.col <= 4) {
+          bonus += 8;
+        }
+      }
+    }
+
+    // Aggression bonus (if player is winning a lot)
+    if (bonuses.aggressionBonus && move.capture) {
+      bonus += bonuses.aggressionBonus;
+    }
+
+    return bonus;
   }
 
   function makeRamsayMove() {
@@ -1134,6 +1189,7 @@
         currentPlayer = B;
         updateTurnInfo();
         ramsayThinking = false;
+        saveGameToServer();
         return;
       }
 
@@ -1146,6 +1202,7 @@
         // Ramsay comments on his own move
         if (gameOver) {
           getRamsayReaction("game_over_win", best);
+          saveGameToServer();
         } else {
           getRamsayReaction("own_move", best);
         }
@@ -1249,29 +1306,31 @@
         break;
     }
 
-    // Try Ollama first
-    if (ollamaOK) {
-      try {
-        const resp = await fetch("http://localhost:11434/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "llama3.2",
-            prompt: `You are Gordon Ramsay, the famously angry British celebrity chef. You are playing a chess game where you command British soldiers against an army of monkeys. Stay 100% in character as the furious, dramatic, insult-hurling Gordon Ramsay. Use signature insults like "donkey", "idiot sandwich", "muppet", "donut". Use CAPS for emphasis and dramatic effect. Be over-the-top and theatrical.\n\n${context}\n\nRespond in 1-3 sentences only. Do NOT break character. Do NOT mention being an AI.`,
-            stream: false,
-          }),
-        });
-        const data = await resp.json();
-        if (data.response && data.response.trim().length > 0) {
-          showRamsayComment(data.response.trim());
-          return;
-        }
-      } catch (e) {
-        // Fall through to fallback
+    // Always try to get a fresh quote from the server (which uses Ollama)
+    try {
+      const resp = await fetch(`${API_BASE}/api/quote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          context: context,
+          type: type,
+          moveInfo: move ? {
+            from: move.from,
+            to: move.to,
+            captured: move.capture?.type || move.captured?.type
+          } : null
+        }),
+      });
+      const data = await resp.json();
+      if (data.quote) {
+        showRamsayComment(data.quote);
+        return;
       }
+    } catch (e) {
+      console.warn("API quote error:", e);
     }
 
-    // Fallback to pre-written quotes
+    // Fallback to pre-written quotes only if API fails
     const quote = fallback[Math.floor(Math.random() * fallback.length)];
     showRamsayComment(quote);
   }
@@ -1410,6 +1469,7 @@
 
           if (gameOver) {
             getRamsayReaction("game_over_lose", null);
+            saveGameToServer();
           } else {
             // Ramsay's turn after a delay
             setTimeout(() => makeRamsayMove(), 1200);
@@ -1491,30 +1551,21 @@
   }
 
   // ============================================================
-  // OLLAMA STATUS CHECK
+  // SERVER STATUS CHECK
   // ============================================================
-  async function checkOllama() {
+  async function checkServerStatus() {
     const el = document.getElementById("ollamaStatus");
     try {
-      const resp = await fetch("http://localhost:11434/api/tags");
+      const resp = await fetch(`${API_BASE}/api/health`);
       if (resp.ok) {
         const data = await resp.json();
-        const found =
-          data.models &&
-          data.models.some(
-            (m) =>
-              m.name.includes("llama3.2") || m.name.includes("llama3.2")
-          );
-        if (found) {
-          ollamaOK = true;
-          if (el) {
-            el.textContent = "OLLAMA: Connected (llama3.2)";
+        ollamaOK = data.ollama === 'connected';
+        if (el) {
+          if (data.ollama === 'connected') {
+            el.textContent = `OLLAMA: Connected | GitHub: ${data.github}`;
             el.className = "ollama-status connected";
-          }
-        } else {
-          if (el) {
-            el.textContent =
-              "OLLAMA: No llama3.2 found (using built-in quotes)";
+          } else {
+            el.textContent = "OLLAMA: Using fallback quotes";
             el.className = "ollama-status disconnected";
           }
         }
@@ -1522,10 +1573,69 @@
     } catch (e) {
       ollamaOK = false;
       if (el) {
-        el.textContent = "OLLAMA: Offline (using built-in Ramsay quotes)";
+        el.textContent = "Server: Connecting...";
         el.className = "ollama-status disconnected";
       }
     }
+  }
+
+  // ============================================================
+  // FETCH LEARNED PATTERNS
+  // ============================================================
+  async function fetchLearnedPatterns() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/player-patterns?playerId=${playerId}`);
+      if (resp.ok) {
+        learnedPatterns = await resp.json();
+        console.log("Learned patterns loaded:", learnedPatterns);
+      }
+    } catch (e) {
+      console.warn("Could not fetch patterns:", e);
+    }
+  }
+
+  // ============================================================
+  // SAVE GAME TO SERVER
+  // ============================================================
+  async function saveGameToServer() {
+    const winner = determineWinner();
+    const gameData = {
+      playerId: playerId,
+      moves: moveHistory.map(m => ({
+        from: m.from,
+        to: m.to,
+        piece: { type: m.piece.type, color: m.piece.color },
+        captured: m.captured ? { type: m.captured.type, color: m.captured.color } : null
+      })),
+      winner: winner,
+      timestamp: new Date().toISOString(),
+      capturedByPlayer: capturedSoldiers.map(p => p.type),
+      capturedByAI: capturedMonkeys.map(p => p.type),
+      totalMoves: moveHistory.length
+    };
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/save-game`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(gameData)
+      });
+      const result = await resp.json();
+      if (result.success) {
+        console.log(`Game saved! Total games analyzed: ${result.gamesAnalyzed}`);
+      }
+    } catch (e) {
+      console.warn('Failed to save game:', e);
+    }
+  }
+
+  function determineWinner() {
+    if (!gameOver) return null;
+    const lastMove = moveHistory[moveHistory.length - 1];
+    if (lastMove && lastMove.captured && lastMove.captured.type === KING) {
+      return lastMove.piece.color === W ? 'white' : 'black';
+    }
+    return currentPlayer === W ? 'black' : 'white'; // Other player won
   }
 
   // ============================================================
@@ -1533,7 +1643,8 @@
   // ============================================================
   createAllSprites();
   drawRamsayPortrait();
-  checkOllama();
+  checkServerStatus();
+  fetchLearnedPatterns();
   initGame();
   requestAnimationFrame(gameLoop);
 })();
