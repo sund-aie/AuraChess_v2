@@ -326,7 +326,7 @@ if __name__ == '__main__':
     print(f"GitHub Repo: {GITHUB_REPO}")
     print(f"GitHub Token: {'configured' if GITHUB_TOKEN else 'NOT SET'}")
     print("-" * 60)
-    print("Open http://localhost:5000 in your browser")
+    print("Open http://localhost:8080 in your browser")
     print("=" * 60)
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
