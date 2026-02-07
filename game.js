@@ -40,6 +40,8 @@
     gameOver;
   let capturedMonkeys, capturedSoldiers, moveHistory, animState, ollamaOK;
   let ramsayThinking = false;
+  let usedQuotes = [];
+  let lastPlayerMoveQuality = "neutral"; // "good", "bad", or "neutral"
 
   // === API & LEARNING ===
   const API_BASE = window.location.origin;
@@ -500,7 +502,8 @@
   // ============================================================
   // GORDON RAMSAY PIXEL PORTRAIT
   // ============================================================
-  function drawRamsayPortrait() {
+  function drawRamsayPortrait(expression = "neutral") {
+    // Expressions: "neutral", "furious", "impressed", "smug", "worried"
     const rc = document.getElementById("ramsayFace");
     if (!rc) return;
     const rx = rc.getContext("2d");
@@ -509,8 +512,27 @@
     oc.width = oc.height = 32;
     const ox = oc.getContext("2d");
 
+    // Face colors based on expression
+    const faceColors = {
+      neutral: "#ffcc99",
+      furious: "#ff8866",   // Red tinted - angry
+      impressed: "#ffcc99",
+      smug: "#ffcc99",
+      worried: "#ffeebb"    // Pale/yellowish
+    };
+    const faceColor = faceColors[expression] || faceColors.neutral;
+
     // Background
     R(ox, "#2a1a0e", 0, 0, 32, 32);
+
+    // Steam lines for furious expression
+    if (expression === "furious") {
+      R(ox, "#ffffff", 4, 2, 1, 3);
+      R(ox, "#eeeeee", 5, 1, 1, 2);
+      R(ox, "#ffffff", 27, 2, 1, 3);
+      R(ox, "#eeeeee", 26, 1, 1, 2);
+    }
+
     // Chef hat
     R(ox, "#ffffff", 8, 0, 16, 7);
     R(ox, "#f8f8f8", 10, 0, 12, 3);
@@ -519,28 +541,108 @@
     R(ox, "#daa520", 8, 7, 3, 3);
     R(ox, "#daa520", 21, 7, 3, 3);
     // Face
-    R(ox, "#ffcc99", 9, 7, 14, 10);
-    R(ox, "#ffcc99", 10, 17, 12, 2);
-    // Angry eyebrows (furrowed V shapes)
-    R(ox, "#8B6914", 10, 9, 5, 2);
-    R(ox, "#8B6914", 17, 9, 5, 2);
-    R(ox, "#7a5a10", 12, 9, 2, 1);
-    R(ox, "#7a5a10", 18, 9, 2, 1);
-    // Eyes
-    R(ox, "#ffffff", 11, 11, 3, 2);
-    R(ox, "#ffffff", 18, 11, 3, 2);
-    R(ox, "#2244aa", 12, 11, 2, 2);
-    R(ox, "#2244aa", 19, 11, 2, 2);
-    R(ox, "#000000", 12, 12, 1, 1);
-    R(ox, "#000000", 19, 12, 1, 1);
+    R(ox, faceColor, 9, 7, 14, 10);
+    R(ox, faceColor, 10, 17, 12, 2);
+
+    // Expression-specific eyebrows
+    if (expression === "neutral") {
+      // Slight frown
+      R(ox, "#8B6914", 10, 10, 5, 1);
+      R(ox, "#8B6914", 17, 10, 5, 1);
+    } else if (expression === "furious") {
+      // Deep V frown, lower
+      R(ox, "#8B6914", 10, 9, 5, 2);
+      R(ox, "#8B6914", 17, 9, 5, 2);
+      R(ox, "#5a3a00", 12, 9, 2, 1);
+      R(ox, "#5a3a00", 18, 9, 2, 1);
+      R(ox, "#5a3a00", 14, 10, 4, 1);
+    } else if (expression === "impressed") {
+      // One raised eyebrow
+      R(ox, "#8B6914", 10, 8, 5, 1);  // Left raised
+      R(ox, "#8B6914", 17, 10, 5, 1); // Right normal
+    } else if (expression === "smug") {
+      // Relaxed, slightly raised
+      R(ox, "#8B6914", 10, 9, 5, 1);
+      R(ox, "#8B6914", 17, 9, 5, 1);
+    } else if (expression === "worried") {
+      // Raised worried brows
+      R(ox, "#8B6914", 10, 8, 5, 1);
+      R(ox, "#8B6914", 17, 8, 5, 1);
+      R(ox, "#8B6914", 12, 9, 2, 1);
+      R(ox, "#8B6914", 18, 9, 2, 1);
+    }
+
+    // Eyes - vary by expression
+    if (expression === "smug") {
+      // Squinted laughing eyes
+      R(ox, "#ffffff", 11, 11, 3, 1);
+      R(ox, "#ffffff", 18, 11, 3, 1);
+      R(ox, "#2244aa", 12, 11, 2, 1);
+      R(ox, "#2244aa", 19, 11, 2, 1);
+    } else if (expression === "impressed") {
+      // Narrowed calculating eyes
+      R(ox, "#ffffff", 11, 11, 3, 2);
+      R(ox, "#ffffff", 18, 11, 3, 2);
+      R(ox, "#2244aa", 11, 11, 2, 2);
+      R(ox, "#2244aa", 19, 11, 2, 2);
+      R(ox, "#000000", 11, 12, 1, 1);
+      R(ox, "#000000", 19, 12, 1, 1);
+    } else if (expression === "furious") {
+      // Wide angry eyes
+      R(ox, "#ffffff", 10, 11, 4, 3);
+      R(ox, "#ffffff", 18, 11, 4, 3);
+      R(ox, "#cc2222", 11, 12, 3, 2); // Red-tinted irises
+      R(ox, "#cc2222", 19, 12, 3, 2);
+      R(ox, "#000000", 12, 12, 1, 1);
+      R(ox, "#000000", 20, 12, 1, 1);
+    } else {
+      // Normal eyes
+      R(ox, "#ffffff", 11, 11, 3, 2);
+      R(ox, "#ffffff", 18, 11, 3, 2);
+      R(ox, "#2244aa", 12, 11, 2, 2);
+      R(ox, "#2244aa", 19, 11, 2, 2);
+      R(ox, "#000000", 12, 12, 1, 1);
+      R(ox, "#000000", 19, 12, 1, 1);
+    }
+
+    // Sweat drop for worried
+    if (expression === "worried") {
+      R(ox, "#88ccff", 7, 10, 1, 2);
+      R(ox, "#aaeeff", 7, 10, 1, 1);
+    }
+
     // Nose
     R(ox, "#eebb88", 14, 13, 4, 3);
     R(ox, "#dd9966", 15, 14, 2, 2);
-    // Angry mouth (open, shouting)
-    R(ox, "#cc0000", 11, 17, 10, 3);
-    R(ox, "#880000", 12, 18, 8, 2);
-    R(ox, "#ffffff", 12, 17, 2, 1); // teeth
-    R(ox, "#ffffff", 18, 17, 2, 1);
+
+    // Mouth - varies by expression
+    if (expression === "neutral") {
+      // Slight frown
+      R(ox, "#cc6666", 12, 17, 8, 2);
+      R(ox, "#993333", 13, 18, 6, 1);
+    } else if (expression === "furious") {
+      // Wide open shouting
+      R(ox, "#cc0000", 10, 17, 12, 4);
+      R(ox, "#880000", 11, 18, 10, 3);
+      R(ox, "#ffffff", 11, 17, 2, 1); // teeth
+      R(ox, "#ffffff", 19, 17, 2, 1);
+      R(ox, "#ff4444", 14, 19, 4, 1); // tongue
+    } else if (expression === "impressed") {
+      // Pursed/concerned
+      R(ox, "#cc6666", 13, 17, 6, 2);
+      R(ox, "#aa4444", 14, 17, 4, 1);
+    } else if (expression === "smug") {
+      // Big grin
+      R(ox, "#cc4444", 11, 17, 10, 3);
+      R(ox, "#ffffff", 12, 17, 8, 1); // big toothy grin
+      R(ox, "#993333", 12, 19, 8, 1);
+    } else if (expression === "worried") {
+      // Nervous wavy mouth
+      R(ox, "#cc8866", 12, 17, 2, 1);
+      R(ox, "#cc8866", 14, 18, 4, 1);
+      R(ox, "#cc8866", 18, 17, 2, 1);
+    }
+
     // Wrinkle lines
     R(ox, "#ddaa77", 8, 13, 1, 2);
     R(ox, "#ddaa77", 23, 13, 1, 2);
@@ -582,10 +684,12 @@
     moveHistory = [];
     animState = null;
     ramsayThinking = false;
+    lastPlayerMoveQuality = "neutral";
 
     updatePOW();
     drawBoard();
     updateTurnInfo();
+    drawRamsayPortrait("neutral");
 
     // Gordon Ramsay (white) goes first
     showRamsayComment(
@@ -955,16 +1059,43 @@
         ctx.arc(mfx, mfy, 4 * (1 - t), 0, Math.PI * 2);
         ctx.fill();
 
-        // Bullet
+        // 16x16 Bullet sprite
         const bx = fx + (tx - fx) * (0.15 + 0.85 * t);
         const by = fy + (ty - fy) * (0.15 + 0.85 * t);
-        ctx.fillStyle = "#ffdd00";
-        ctx.fillRect(bx - 3, by - 3, 6, 6);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(bx - 1, by - 1, 2, 2);
 
-        // Bullet trail
-        ctx.strokeStyle = "rgba(255, 200, 0, 0.3)";
+        // Draw 16x16 pixel art bullet
+        const bulletX = bx - 8;
+        const bulletY = by - 8;
+
+        // Bullet body (copper/brass color)
+        ctx.fillStyle = "#cc8833";
+        ctx.fillRect(bulletX + 4, bulletY + 2, 8, 12);
+        // Bullet tip (pointed)
+        ctx.fillStyle = "#ddaa44";
+        ctx.fillRect(bulletX + 5, bulletY, 6, 2);
+        ctx.fillRect(bulletX + 6, bulletY - 1, 4, 1);
+        ctx.fillRect(bulletX + 7, bulletY - 2, 2, 1);
+        // Bullet casing base
+        ctx.fillStyle = "#aa6622";
+        ctx.fillRect(bulletX + 4, bulletY + 12, 8, 4);
+        ctx.fillStyle = "#886611";
+        ctx.fillRect(bulletX + 4, bulletY + 14, 8, 2);
+        // Highlight
+        ctx.fillStyle = "#ffcc66";
+        ctx.fillRect(bulletX + 5, bulletY + 3, 2, 8);
+        // Shadow
+        ctx.fillStyle = "#995522";
+        ctx.fillRect(bulletX + 10, bulletY + 3, 1, 10);
+
+        // Bullet trail (wider for 16x16)
+        ctx.strokeStyle = "rgba(255, 200, 0, 0.4)";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(mfx, mfy);
+        ctx.lineTo(bx, by);
+        ctx.stroke();
+        // Inner trail
+        ctx.strokeStyle = "rgba(255, 255, 200, 0.3)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(mfx, mfy);
@@ -1199,12 +1330,25 @@
 
       ramsayThinking = false;
       executeMove(best.from, best.to, () => {
-        // Ramsay comments on his own move
+        // Ramsay comments once per round (after his move completes)
         if (gameOver) {
           getRamsayReaction("game_over_win", best);
+          drawRamsayPortrait("smug");
           saveGameToServer();
         } else {
-          getRamsayReaction("own_move", best);
+          // Comment based on player's last move quality
+          if (lastPlayerMoveQuality === "good") {
+            const expr = Math.random() > 0.5 ? "furious" : "impressed";
+            getRamsayReaction("good_player_move", best);
+            drawRamsayPortrait(expr);
+          } else if (lastPlayerMoveQuality === "bad") {
+            const expr = Math.random() > 0.5 ? "smug" : "worried";
+            getRamsayReaction("bad_player_move", best);
+            drawRamsayPortrait(expr);
+          } else {
+            getRamsayReaction("own_move", best);
+            drawRamsayPortrait("neutral");
+          }
         }
       });
     }, 800);
@@ -1336,6 +1480,13 @@
   }
 
   function showRamsayComment(text) {
+    // Check for duplicate - skip if already used
+    if (usedQuotes.includes(text)) {
+      console.log("Skipping duplicate quote");
+      return;
+    }
+    usedQuotes.push(text);
+
     const el = document.getElementById("ramsayText");
     if (el) {
       el.textContent = text;
@@ -1523,17 +1674,18 @@
       }
     }
 
-    if (isGoodMove) {
-      getRamsayReaction("good_player_move", { from, to, captured });
-    } else {
-      getRamsayReaction("bad_player_move", { from, to });
-    }
+    // Store quality for Ramsay's comment after his move
+    lastPlayerMoveQuality = isGoodMove ? "good" : "bad";
   }
 
   // ============================================================
   // RESET
   // ============================================================
   document.getElementById("resetBtn").addEventListener("click", () => {
+    // Clear used quotes for new game
+    usedQuotes = [];
+    lastPlayerMoveQuality = "neutral";
+    drawRamsayPortrait("neutral");
     showRamsayComment(
       "FINE! Let's go AGAIN! This time I'll absolutely DESTROY you, you pathetic banana-brained DONUT! COME ON!"
     );
