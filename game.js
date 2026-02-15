@@ -756,11 +756,20 @@
     updateTurnInfo();
     drawRamsayPortrait("neutral");
 
-    // Gordon Ramsay (white) goes first
-    showRamsayComment(
-      "RIGHT THEN! Listen here you furry little DONKEYS! Chef Ramsay is about to teach you what REAL strategy looks like! MOVE IT!"
-    );
-    setTimeout(() => makeRamsayMove(), 1500);
+    // Determine who goes first (white always starts in chess)
+    const playerColor = gameConfig.playerSide === 'white' ? W : B;
+    if (playerColor === W) {
+      // Player is white, they go first
+      showRamsayComment(
+        "RIGHT THEN! You want to go first? FINE! Show me what you've got, you ABSOLUTE WALNUT! I'll be watching EVERY move!"
+      );
+    } else {
+      // Ramsay is white, he goes first
+      showRamsayComment(
+        "RIGHT THEN! Listen here you furry little DONKEYS! Chef Ramsay is about to teach you what REAL strategy looks like! MOVE IT!"
+      );
+      setTimeout(() => makeRamsayMove(), 1500);
+    }
   }
 
   // ============================================================
@@ -1412,9 +1421,13 @@
       Math.abs(move.to.row - 3.5) + Math.abs(move.to.col - 3.5);
     score += (7 - cd) * 5;
 
-    // Advance pawns
+    // Advance pawns (direction depends on color)
     if (move.piece.type === PAWN) {
-      score += move.to.row * 4; // white moves down, higher row = more advanced
+      if (move.piece.color === W) {
+        score += move.to.row * 4; // white moves down, higher row = more advanced
+      } else {
+        score += (7 - move.to.row) * 4; // black moves up, lower row = more advanced
+      }
     }
 
     // Develop pieces early
@@ -1480,18 +1493,20 @@
   }
 
   function makeRamsayMove() {
-    if (gameOver || currentPlayer !== W) return;
+    const aiColor = gameConfig.playerSide === 'white' ? B : W;
+    if (gameOver || currentPlayer !== aiColor) return;
     ramsayThinking = true;
     updateTurnInfo();
 
     setTimeout(() => {
-      const moves = getAllMoves(W);
+      const moves = getAllMoves(aiColor);
       if (moves.length === 0) {
         gameOver = true;
         showRamsayComment(
           "BLOODY HELL! I can't even MOVE! You win this time, you lucky DONKEY! But I WILL be back!"
         );
-        currentPlayer = B;
+        const playerColor = aiColor === W ? B : W;
+        currentPlayer = playerColor;
         updateTurnInfo();
         ramsayThinking = false;
         saveGameToServer();
@@ -1677,26 +1692,31 @@
     if (!el) return;
     el.className = "turn-info";
 
+    const playerColor = gameConfig.playerSide === 'white' ? W : B;
+    const aiColor = playerColor === W ? B : W;
+    const playerName = THEME_NAMES[playerColor === W ? gameConfig.whitePieces : gameConfig.blackPieces] || "Player";
+    const aiName = THEME_NAMES[aiColor === W ? gameConfig.whitePieces : gameConfig.blackPieces] || "Ramsay";
+
     if (gameOver) {
       const lastMove = moveHistory[moveHistory.length - 1];
       if (lastMove && lastMove.captured && lastMove.captured.type === KING) {
-        if (lastMove.piece.color === W) {
+        if (lastMove.piece.color === aiColor) {
           el.textContent = "RAMSAY WINS! GET OUT!";
         } else {
-          el.textContent = "YOUR MONKEYS WIN!";
+          el.textContent = `YOUR ${playerName.toUpperCase()} WIN!`;
         }
       } else {
         el.textContent = "GAME OVER!";
       }
       el.classList.add("game-over");
     } else if (ramsayThinking) {
-      el.textContent = "RAMSAY IS THINKING...";
+      el.textContent = `RAMSAY IS THINKING... (${aiName})`;
       el.classList.add("ramsay-turn");
-    } else if (currentPlayer === B) {
-      el.textContent = "YOUR TURN (Monkeys)";
+    } else if (currentPlayer === playerColor) {
+      el.textContent = `YOUR TURN (${playerName})`;
       el.classList.add("your-turn");
     } else {
-      el.textContent = "RAMSAY'S TURN (Soldiers)";
+      el.textContent = `RAMSAY'S TURN (${aiName})`;
       el.classList.add("ramsay-turn");
     }
   }
@@ -1762,7 +1782,8 @@
   // INPUT HANDLING
   // ============================================================
   canvas.addEventListener("click", (e) => {
-    if (gameOver || animState || currentPlayer !== B || ramsayThinking) return;
+    const playerColor = gameConfig.playerSide === 'white' ? W : B;
+    if (gameOver || animState || currentPlayer !== playerColor || ramsayThinking) return;
 
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -1808,9 +1829,9 @@
       validMoves = [];
     }
 
-    // Select a monkey piece
+    // Select a player piece
     const piece = board[row][col];
-    if (piece && piece.color === B) {
+    if (piece && piece.color === playerColor) {
       selected = { row, col };
       validMoves = getValidMoves(row, col);
     }
@@ -1830,7 +1851,8 @@
     // Check if the moved piece is now threatened
     const piece = board[to.row][to.col];
     if (piece) {
-      const enemyMoves = getAllMoves(W);
+      const aiColor = gameConfig.playerSide === 'white' ? B : W;
+      const enemyMoves = getAllMoves(aiColor);
       const threatened = enemyMoves.some(
         (m) => m.to.row === to.row && m.to.col === to.col
       );
@@ -1840,7 +1862,7 @@
       // Extra good: threatening high-value enemy pieces
       const myMoves = getValidMoves(to.row, to.col);
       for (const m of myMoves) {
-        if (board[m.row][m.col] && board[m.row][m.col].color === W) {
+        if (board[m.row][m.col] && board[m.row][m.col].color === aiColor) {
           if (VALUES[board[m.row][m.col].type] >= 500) {
             isGoodMove = true;
           }
@@ -1935,8 +1957,8 @@
       })),
       winner: winner,
       timestamp: new Date().toISOString(),
-      capturedByPlayer: capturedSoldiers.map(p => p.type),
-      capturedByAI: capturedMonkeys.map(p => p.type),
+      capturedByPlayer: (gameConfig.playerSide === 'white' ? capturedMonkeys : capturedSoldiers).map(p => p.type),
+      capturedByAI: (gameConfig.playerSide === 'white' ? capturedSoldiers : capturedMonkeys).map(p => p.type),
       totalMoves: moveHistory.length
     };
 
