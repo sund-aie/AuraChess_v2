@@ -46,52 +46,54 @@ class AILearning:
 
     def generate_gradual_adaptations(self, patterns: dict) -> dict:
         """
-        Generate GRADUAL AI adaptations based on patterns.
-        The more games played, the more the AI adapts (but slowly).
+        Generate FAST AI adaptations based on patterns.
+        The AI learns quickly to provide a challenging experience.
         """
         games_played = patterns.get('gamesPlayed', 0)
         player_patterns = patterns.get('patterns', {})
 
-        # Adaptation strength scales with games (max out at ~20 games)
-        # This creates a gradual learning curve
-        adaptation_strength = min(games_played / 20.0, 1.0)
+        # FAST LEARNING: Adaptation strength maxes out at 5 games (was 20)
+        # AI learns quickly and aggressively
+        adaptation_strength = min(games_played / 5.0, 1.0)
 
         adaptations = {
-            'enabled': games_played >= 3,  # Need at least 3 games to start adapting
+            'enabled': games_played >= 1,  # Start adapting after just 1 game!
             'strength': adaptation_strength,
             'bonuses': {}
         }
 
-        if games_played < 3:
+        if games_played < 1:
             return adaptations
 
-        # Counter-opening strategy (kicks in after 5 games)
+        # Counter-opening strategy (kicks in after 2 games, was 5)
         openings = player_patterns.get('openings', {})
-        if games_played >= 5 and openings:
+        if games_played >= 2 and openings:
             most_common = max(openings, key=openings.get, default=None)
             adaptations['counterOpening'] = self._get_counter_opening(most_common)
 
-        # Target weak squares (kicks in after 5 games)
+        # Target weak squares (kicks in after 2 games, was 5)
         weak_squares = player_patterns.get('weakSquares', [])
-        if games_played >= 5 and weak_squares:
-            # Only use top 3 weakest squares
-            adaptations['targetSquares'] = weak_squares[:3]
-            # Bonus scales with adaptation strength (max +25)
-            adaptations['bonuses']['weakSquareBonus'] = int(25 * adaptation_strength)
+        if games_played >= 2 and weak_squares:
+            # Use top 5 weakest squares (was 3)
+            adaptations['targetSquares'] = weak_squares[:5]
+            # DOUBLED bonus (max +50, was +25)
+            adaptations['bonuses']['weakSquareBonus'] = int(50 * adaptation_strength)
 
-        # Exploit piece overuse (kicks in after 8 games)
+        # Exploit piece overuse (kicks in after 3 games, was 8)
         piece_prefs = player_patterns.get('piecePreferences', {})
-        if games_played >= 8 and piece_prefs:
-            overused = [p for p, freq in piece_prefs.items() if freq > 0.25]
+        if games_played >= 3 and piece_prefs:
+            overused = [p for p, freq in piece_prefs.items() if freq > 0.20]  # Lower threshold
             if overused:
                 adaptations['targetPieces'] = overused
-                adaptations['bonuses']['pieceTargetBonus'] = int(20 * adaptation_strength)
+                # DOUBLED bonus (max +40, was +20)
+                adaptations['bonuses']['pieceTargetBonus'] = int(40 * adaptation_strength)
 
-        # Counter mistakes (kicks in after 10 games)
+        # Counter mistakes (kicks in after 4 games, was 10)
         mistakes = player_patterns.get('commonMistakes', [])
-        if games_played >= 10 and mistakes:
-            adaptations['exploitPatterns'] = [m['pattern'] for m in mistakes[:2]]
-            adaptations['bonuses']['mistakeExploitBonus'] = int(30 * adaptation_strength)
+        if games_played >= 4 and mistakes:
+            adaptations['exploitPatterns'] = [m['pattern'] for m in mistakes[:3]]  # Use more patterns
+            # DOUBLED bonus (max +60, was +30)
+            adaptations['bonuses']['mistakeExploitBonus'] = int(60 * adaptation_strength)
 
         # Add development bonuses based on player's win rate
         # If player is winning a lot, increase AI aggression slightly

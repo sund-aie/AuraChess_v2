@@ -55,6 +55,40 @@
   // === SPRITE CACHE ===
   const sprites = {};
 
+  // === THEME CONFIGURATION ===
+  let gameConfig = {
+    whitePieces: 'british',
+    blackPieces: 'monkeys',
+    boardColors: 'classic',
+    killStyle: 'shooting',
+    playerSide: 'black', // 'white' or 'black'
+    customBoard: null
+  };
+
+  // Board color schemes
+  const BOARD_COLORS = {
+    classic: { light: "#f0d9b5", dark: "#b58863" },
+    military: { light: "#5a6d33", dark: "#3d4a23" },
+    ocean: { light: "#a8d8ea", dark: "#3d5a80" },
+    volcanic: { light: "#ff6b6b", dark: "#2d2d2d" },
+    royal: { light: "#e8d5f7", dark: "#6b4499" },
+    desert: { light: "#f5deb3", dark: "#d2a679" },
+    forest: { light: "#a8d5a2", dark: "#4a7c47" },
+    ice: { light: "#e0f7fa", dark: "#4dd0e1" }
+  };
+
+  // Theme display names
+  const THEME_NAMES = {
+    british: "British Soldiers",
+    monkeys: "Jungle Monkeys",
+    american: "US Marines",
+    arab: "Desert Warriors",
+    classic_white: "Classic White",
+    classic_black: "Classic Black",
+    ninja: "Shadow Ninjas",
+    knights: "Crusaders"
+  };
+
   // === SPRITE HELPERS ===
   function mkSprite(fn) {
     const c = document.createElement("canvas");
@@ -705,10 +739,11 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
 
+    const colors = getBoardColors();
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const light = (r + c) % 2 === 0;
-        ctx.fillStyle = light ? "#c8b878" : "#5a7a3e";
+        ctx.fillStyle = light ? colors.light : colors.dark;
         ctx.fillRect(c * SQ, r * SQ, SQ, SQ);
       }
     }
@@ -1173,6 +1208,110 @@
         drawBoard();
         if (cb) cb();
       }
+    } else if (animState.type === "stab") {
+      // Stabbing animation phases
+      const rushDur = 300;   // Rush towards target
+      const stabDur = 150;   // Stab motion
+      const hitDur = 300;    // Target falls
+      const walkDur = 400;   // Walk to square
+      const totalDur = rushDur + stabDur + hitDur + walkDur;
+
+      const fx = animState.from.col * SQ + SQ / 2;
+      const fy = animState.from.row * SQ + SQ / 2;
+      const tx = animState.to.col * SQ + SQ / 2;
+      const ty = animState.to.row * SQ + SQ / 2;
+
+      drawBoard();
+
+      if (elapsed < rushDur) {
+        // Phase 0: Rush towards target
+        const t = elapsed / rushDur;
+        const ease = t * t; // Accelerate
+
+        const ax = animState.from.col * SQ + (animState.to.col - animState.from.col) * SQ * ease * 0.7;
+        const ay = animState.from.row * SQ + (animState.to.row - animState.from.row) * SQ * ease * 0.7;
+
+        drawPieceAt(animState.attacker, ax, ay, 1);
+        drawPieceAt(animState.victim, animState.to.col * SQ, animState.to.row * SQ, 1);
+      } else if (elapsed < rushDur + stabDur) {
+        // Phase 1: Stab motion - lunge forward
+        const t = (elapsed - rushDur) / stabDur;
+        const lunge = Math.sin(t * Math.PI) * 15;
+
+        const ax = animState.from.col * SQ + (animState.to.col - animState.from.col) * SQ * 0.7;
+        const ay = animState.from.row * SQ + (animState.to.row - animState.from.row) * SQ * 0.7;
+
+        // Calculate direction for lunge
+        const dx = (tx - fx);
+        const dy = (ty - fy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const lungeX = ax + (dx / dist) * lunge;
+        const lungeY = ay + (dy / dist) * lunge;
+
+        drawPieceAt(animState.attacker, lungeX, lungeY, 1);
+        drawPieceAt(animState.victim, animState.to.col * SQ, animState.to.row * SQ, 1);
+
+        // Draw knife/blade effect
+        if (t > 0.3 && t < 0.7) {
+          const bladeMidX = (lungeX + SQ/2 + animState.to.col * SQ + SQ/2) / 2;
+          const bladeMidY = (lungeY + SQ/2 + animState.to.row * SQ + SQ/2) / 2;
+          ctx.fillStyle = "#c0c0c0";
+          ctx.fillRect(bladeMidX - 2, bladeMidY - 8, 4, 16);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(bladeMidX - 1, bladeMidY - 6, 2, 10);
+        }
+      } else if (elapsed < rushDur + stabDur + hitDur) {
+        // Phase 2: Hit - target falls with blood effect
+        const t = (elapsed - rushDur - stabDur) / hitDur;
+        animState.targetHidden = true;
+
+        const ax = animState.from.col * SQ + (animState.to.col - animState.from.col) * SQ * 0.7;
+        const ay = animState.from.row * SQ + (animState.to.row - animState.from.row) * SQ * 0.7;
+
+        drawPieceAt(animState.attacker, ax, ay, 1);
+
+        // Blood splash
+        if (t < 0.4) {
+          ctx.fillStyle = "rgba(180, 0, 0, 0.7)";
+          const splashSize = t * 40;
+          ctx.beginPath();
+          ctx.arc(tx, ty, splashSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Victim falling
+        const fallAngle = t * Math.PI / 4;
+        const fadeAlpha = Math.max(0, 1 - t * 1.5);
+        ctx.save();
+        ctx.translate(animState.to.col * SQ + SQ/2, animState.to.row * SQ + SQ/2);
+        ctx.rotate(fallAngle);
+        ctx.globalAlpha = fadeAlpha;
+        ctx.translate(-SQ/2, -SQ/2 + t * 20);
+        const victimSprite = sprites[animState.victim.color + "_" + animState.victim.type];
+        if (victimSprite) {
+          ctx.drawImage(victimSprite, 0, 0, SQ, SQ);
+        }
+        ctx.restore();
+      } else if (elapsed < totalDur) {
+        // Phase 3: Walk to target square
+        const t = (elapsed - rushDur - stabDur - hitDur) / walkDur;
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        animState.targetHidden = true;
+
+        const startX = animState.from.col * SQ + (animState.to.col - animState.from.col) * SQ * 0.7;
+        const startY = animState.from.row * SQ + (animState.to.row - animState.from.row) * SQ * 0.7;
+        const ax = startX + (animState.to.col * SQ - startX) * ease;
+        const ay = startY + (animState.to.row * SQ - startY) * ease - Math.sin(t * Math.PI) * 8;
+
+        drawPieceAt(animState.attacker, ax, ay, 1);
+      } else {
+        // Animation complete
+        animState.targetHidden = true;
+        const cb = animState.callback;
+        animState = null;
+        drawBoard();
+        if (cb) cb();
+      }
     }
   }
 
@@ -1209,13 +1348,17 @@
     };
 
     if (target) {
-      // Capture: shoot animation
+      // Capture: use selected kill animation
       if (target.color === B) {
         capturedMonkeys.push(target);
       } else {
         capturedSoldiers.push(target);
       }
-      startShootAnim(from, to, piece, target, afterMove);
+      if (gameConfig.killStyle === 'stabbing') {
+        startStabAnim(from, to, piece, target, afterMove);
+      } else {
+        startShootAnim(from, to, piece, target, afterMove);
+      }
     } else {
       // Normal move: walk animation
       startWalkAnim(from, to, piece, afterMove);
@@ -1791,12 +1934,237 @@
   }
 
   // ============================================================
+  // THEME SELECTOR
+  // ============================================================
+  function initThemeSelector() {
+    const themeSelector = document.getElementById('themeSelector');
+    const gameContainer = document.getElementById('gameContainer');
+    const startBtn = document.getElementById('startGameBtn');
+    const changeThemeBtn = document.getElementById('changeThemeBtn');
+    const designerBtn = document.getElementById('designerBtn');
+    const designerModal = document.getElementById('designerModal');
+    const saveDesignBtn = document.getElementById('saveDesignBtn');
+    const cancelDesignBtn = document.getElementById('cancelDesignBtn');
+    const lightPicker = document.getElementById('lightColorPicker');
+    const darkPicker = document.getElementById('darkColorPicker');
+
+    // Side selection
+    document.querySelectorAll('.side-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameConfig.playerSide = btn.dataset.side;
+      });
+    });
+
+    // White pieces selection
+    document.querySelectorAll('#whitePieces .piece-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#whitePieces .piece-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        gameConfig.whitePieces = card.dataset.theme;
+      });
+    });
+
+    // Black pieces selection
+    document.querySelectorAll('#blackPieces .piece-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#blackPieces .piece-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        gameConfig.blackPieces = card.dataset.theme;
+      });
+    });
+
+    // Board colors selection
+    document.querySelectorAll('.board-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.board-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        gameConfig.boardColors = card.dataset.board;
+      });
+    });
+
+    // Kill style selection
+    document.querySelectorAll('.kill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.kill-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameConfig.killStyle = btn.dataset.kill;
+      });
+    });
+
+    // Designer button
+    if (designerBtn) {
+      designerBtn.addEventListener('click', () => {
+        designerModal.style.display = 'flex';
+        updateDesignerPreview();
+      });
+    }
+
+    // Save design
+    if (saveDesignBtn) {
+      saveDesignBtn.addEventListener('click', () => {
+        gameConfig.customBoard = {
+          light: lightPicker.value,
+          dark: darkPicker.value
+        };
+        // Update custom preview in selector
+        const customPreview = document.getElementById('customBoardPreview');
+        if (customPreview) {
+          const squares = customPreview.querySelectorAll('.board-square');
+          squares.forEach((sq, i) => {
+            sq.style.background = (i === 0 || i === 3) ? lightPicker.value : darkPicker.value;
+          });
+        }
+        // Select custom board
+        document.querySelectorAll('.board-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('customBoardCard').classList.add('selected');
+        gameConfig.boardColors = 'custom';
+        designerModal.style.display = 'none';
+      });
+    }
+
+    // Cancel design
+    if (cancelDesignBtn) {
+      cancelDesignBtn.addEventListener('click', () => {
+        designerModal.style.display = 'none';
+      });
+    }
+
+    // Update designer preview on color change
+    if (lightPicker && darkPicker) {
+      lightPicker.addEventListener('input', updateDesignerPreview);
+      darkPicker.addEventListener('input', updateDesignerPreview);
+    }
+
+    function updateDesignerPreview() {
+      const preview = document.getElementById('designerPreviewBoard');
+      if (!preview) return;
+      preview.innerHTML = '';
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const sq = document.createElement('div');
+          sq.style.width = '40px';
+          sq.style.height = '40px';
+          sq.style.background = ((r + c) % 2 === 0) ? lightPicker.value : darkPicker.value;
+          preview.appendChild(sq);
+        }
+      }
+    }
+
+    // Start game
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        themeSelector.style.display = 'none';
+        gameContainer.style.display = 'block';
+        startGameWithConfig();
+      });
+    }
+
+    // Change theme button (in game)
+    if (changeThemeBtn) {
+      changeThemeBtn.addEventListener('click', () => {
+        gameContainer.style.display = 'none';
+        themeSelector.style.display = 'flex';
+      });
+    }
+
+    // Generate preview sprites for theme cards
+    generateThemePreviews();
+  }
+
+  function generateThemePreviews() {
+    // Generate preview sprites for each piece theme card
+    const previewPieces = {
+      'british': drawSoldierKing,
+      'american': window.SPRITE_FUNCTIONS?.american?.king,
+      'classic_white': window.SPRITE_FUNCTIONS?.classic_white?.king,
+      'knights': drawSoldierKnight,
+      'monkeys': drawMonkeyKing,
+      'arab': window.SPRITE_FUNCTIONS?.arab?.king,
+      'classic_black': window.SPRITE_FUNCTIONS?.classic_black?.king,
+      'ninja': window.SPRITE_FUNCTIONS?.ninja?.king
+    };
+
+    document.querySelectorAll('.piece-card').forEach(card => {
+      const canvas = card.querySelector('.piece-preview');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+
+      const theme = card.dataset.theme;
+      let drawFn = previewPieces[theme];
+
+      // Create a temp 16x16 canvas and draw
+      const temp = document.createElement('canvas');
+      temp.width = temp.height = 16;
+      const tempCtx = temp.getContext('2d');
+
+      if (drawFn) {
+        drawFn(tempCtx);
+      } else {
+        // Fallback - draw a simple placeholder
+        tempCtx.fillStyle = '#888';
+        tempCtx.fillRect(4, 4, 8, 8);
+      }
+
+      // Scale to preview canvas
+      ctx.drawImage(temp, 0, 0, 48, 48);
+    });
+  }
+
+  function startGameWithConfig() {
+    // Update UI labels based on config
+    const whiteName = THEME_NAMES[gameConfig.whitePieces] || gameConfig.whitePieces;
+    const blackName = THEME_NAMES[gameConfig.blackPieces] || gameConfig.blackPieces;
+
+    const subtitle = document.getElementById('gameSubtitle');
+    if (subtitle) {
+      subtitle.textContent = `${whiteName} vs ${blackName}`;
+    }
+
+    const powLabelWhite = document.getElementById('powLabelWhite');
+    const powLabelBlack = document.getElementById('powLabelBlack');
+    if (powLabelWhite) powLabelWhite.textContent = `CAPTURED ${whiteName.toUpperCase()}`;
+    if (powLabelBlack) powLabelBlack.textContent = `CAPTURED ${blackName.toUpperCase()}`;
+
+    // Create sprites based on selected themes
+    createAllSprites();
+    drawRamsayPortrait("neutral");
+    checkServerStatus();
+    fetchLearnedPatterns();
+    initGame();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function getBoardColors() {
+    if (gameConfig.boardColors === 'custom' && gameConfig.customBoard) {
+      return gameConfig.customBoard;
+    }
+    return BOARD_COLORS[gameConfig.boardColors] || BOARD_COLORS.classic;
+  }
+
+  // ============================================================
+  // STABBING ANIMATION
+  // ============================================================
+  function startStabAnim(from, to, attacker, victim, callback) {
+    animState = {
+      type: "stab",
+      from,
+      to,
+      attacker,
+      victim,
+      startTime: performance.now(),
+      callback,
+      skipPiece: from,
+      skipTarget: to,
+      targetHidden: false,
+      phase: 0
+    };
+  }
+
+  // ============================================================
   // BOOT UP
   // ============================================================
-  createAllSprites();
-  drawRamsayPortrait();
-  checkServerStatus();
-  fetchLearnedPatterns();
-  initGame();
-  requestAnimationFrame(gameLoop);
+  initThemeSelector();
 })();
