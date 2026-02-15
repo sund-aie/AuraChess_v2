@@ -7,21 +7,216 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>GORDON RAMSAY'S CHESS BATTLEFIELD</h1>
-        <h2 class="subtitle">British Soldiers vs Monkeys</h2>
+    <!-- Theme Selector Overlay -->
+    <div id="themeSelector" class="theme-overlay">
+        <div class="theme-modal">
+            <h1>CHESS BATTLEFIELD</h1>
+            <h2>Choose Your Battle</h2>
+
+            <!-- Side Selection -->
+            <div class="theme-section">
+                <h3>Play As</h3>
+                <div class="side-selection">
+                    <button class="side-btn selected" data-side="black">
+                        <span class="side-icon">BLACK</span>
+                        <span class="side-desc">You move second</span>
+                    </button>
+                    <button class="side-btn" data-side="white">
+                        <span class="side-icon">WHITE</span>
+                        <span class="side-desc">You move first</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- White Pieces -->
+            <div class="theme-section">
+                <h3>White Pieces (AI opponent or You)</h3>
+                <div class="piece-grid" id="whitePieces">
+                    <div class="piece-card selected" data-theme="british">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>British Soldiers</span>
+                    </div>
+                    <div class="piece-card" data-theme="american">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>US Marines</span>
+                    </div>
+                    <div class="piece-card" data-theme="classic_white">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Classic White</span>
+                    </div>
+                    <div class="piece-card" data-theme="knights">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Crusaders</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Black Pieces -->
+            <div class="theme-section">
+                <h3>Black Pieces (You or AI opponent)</h3>
+                <div class="piece-grid" id="blackPieces">
+                    <div class="piece-card selected" data-theme="monkeys">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Jungle Monkeys</span>
+                    </div>
+                    <div class="piece-card" data-theme="arab">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Desert Warriors</span>
+                    </div>
+                    <div class="piece-card" data-theme="classic_black">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Classic Black</span>
+                    </div>
+                    <div class="piece-card" data-theme="ninja">
+                        <canvas class="piece-preview" width="48" height="48"></canvas>
+                        <span>Shadow Ninjas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board Colors -->
+            <div class="theme-section">
+                <h3>Board Colors</h3>
+                <div class="board-grid" id="boardColors">
+                    <div class="board-card selected" data-board="classic">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#f0d9b5"></div>
+                            <div class="board-square dark" style="background:#b58863"></div>
+                            <div class="board-square dark" style="background:#b58863"></div>
+                            <div class="board-square light" style="background:#f0d9b5"></div>
+                        </div>
+                        <span>Classic</span>
+                    </div>
+                    <div class="board-card" data-board="military">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#5a6d33"></div>
+                            <div class="board-square dark" style="background:#3d4a23"></div>
+                            <div class="board-square dark" style="background:#3d4a23"></div>
+                            <div class="board-square light" style="background:#5a6d33"></div>
+                        </div>
+                        <span>Military</span>
+                    </div>
+                    <div class="board-card" data-board="ocean">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#a8d8ea"></div>
+                            <div class="board-square dark" style="background:#3d5a80"></div>
+                            <div class="board-square dark" style="background:#3d5a80"></div>
+                            <div class="board-square light" style="background:#a8d8ea"></div>
+                        </div>
+                        <span>Ocean</span>
+                    </div>
+                    <div class="board-card" data-board="volcanic">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#ff6b6b"></div>
+                            <div class="board-square dark" style="background:#2d2d2d"></div>
+                            <div class="board-square dark" style="background:#2d2d2d"></div>
+                            <div class="board-square light" style="background:#ff6b6b"></div>
+                        </div>
+                        <span>Volcanic</span>
+                    </div>
+                    <div class="board-card" data-board="royal">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#e8d5f7"></div>
+                            <div class="board-square dark" style="background:#6b4499"></div>
+                            <div class="board-square dark" style="background:#6b4499"></div>
+                            <div class="board-square light" style="background:#e8d5f7"></div>
+                        </div>
+                        <span>Royal</span>
+                    </div>
+                    <div class="board-card" data-board="desert">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#f5deb3"></div>
+                            <div class="board-square dark" style="background:#d2a679"></div>
+                            <div class="board-square dark" style="background:#d2a679"></div>
+                            <div class="board-square light" style="background:#f5deb3"></div>
+                        </div>
+                        <span>Desert</span>
+                    </div>
+                    <div class="board-card" data-board="forest">
+                        <div class="board-preview">
+                            <div class="board-square light" style="background:#a8d5a2"></div>
+                            <div class="board-square dark" style="background:#4a7c47"></div>
+                            <div class="board-square dark" style="background:#4a7c47"></div>
+                            <div class="board-square light" style="background:#a8d5a2"></div>
+                        </div>
+                        <span>Forest</span>
+                    </div>
+                    <div class="board-card" data-board="custom" id="customBoardCard">
+                        <div class="board-preview" id="customBoardPreview">
+                            <div class="board-square light" style="background:#ffffff"></div>
+                            <div class="board-square dark" style="background:#888888"></div>
+                            <div class="board-square dark" style="background:#888888"></div>
+                            <div class="board-square light" style="background:#ffffff"></div>
+                        </div>
+                        <span>Custom</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kill Animation -->
+            <div class="theme-section">
+                <h3>Kill Animation</h3>
+                <div class="kill-selection">
+                    <button class="kill-btn selected" data-kill="shooting">
+                        <span class="kill-icon">SHOOTING</span>
+                        <span class="kill-desc">Guns blazing</span>
+                    </button>
+                    <button class="kill-btn" data-kill="stabbing">
+                        <span class="kill-icon">STABBING</span>
+                        <span class="kill-desc">Close combat</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Designer Button -->
+            <div class="theme-section designer-section">
+                <button id="designerBtn" class="designer-btn">Custom Board Designer</button>
+            </div>
+
+            <!-- Start Button -->
+            <button id="startGameBtn" class="start-btn">START BATTLE!</button>
+        </div>
+    </div>
+
+    <!-- Designer Modal -->
+    <div id="designerModal" class="designer-overlay" style="display:none">
+        <div class="designer-panel">
+            <h2>Custom Board Designer</h2>
+            <div class="color-pickers">
+                <div class="color-picker">
+                    <label>Light Squares</label>
+                    <input type="color" id="lightColorPicker" value="#f0d9b5">
+                </div>
+                <div class="color-picker">
+                    <label>Dark Squares</label>
+                    <input type="color" id="darkColorPicker" value="#b58863">
+                </div>
+            </div>
+            <div class="designer-preview">
+                <div class="preview-board" id="designerPreviewBoard"></div>
+            </div>
+            <div class="designer-buttons">
+                <button id="saveDesignBtn">Save & Use</button>
+                <button id="cancelDesignBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="gameContainer" style="display:none">
+        <h1 id="gameTitle">GORDON RAMSAY'S CHESS BATTLEFIELD</h1>
+        <h2 class="subtitle" id="gameSubtitle">British Soldiers vs Monkeys</h2>
 
         <!-- POW / Hostage Area -->
         <div class="pow-area">
             <div class="pow-section">
-                <div class="pow-label">CAPTURED MONKEYS</div>
+                <div class="pow-label" id="powLabelBlack">CAPTURED MONKEYS</div>
                 <div class="pow-cage" id="powMonkeys"></div>
             </div>
             <div class="pow-center">
                 <span>P.O.W.</span>
             </div>
             <div class="pow-section">
-                <div class="pow-label">CAPTURED SOLDIERS</div>
+                <div class="pow-label" id="powLabelWhite">CAPTURED SOLDIERS</div>
                 <div class="pow-cage" id="powSoldiers"></div>
             </div>
         </div>
@@ -45,12 +240,14 @@
                 <div class="ramsay-controls">
                     <div class="turn-info" id="turnInfo">Gordon Ramsay is thinking...</div>
                     <button id="resetBtn">NEW GAME, YOU DONKEY!</button>
+                    <button id="changeThemeBtn">CHANGE THEME</button>
                 </div>
                 <div class="ollama-status" id="ollamaStatus">Connecting to Ollama...</div>
             </div>
         </div>
     </div>
 
+    <script src="themes.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
