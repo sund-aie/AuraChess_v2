@@ -820,6 +820,168 @@ function drawNinjaKing(c) {
 }
 
 // ============================================================
+// CRUSADER/KNIGHT SPRITES (16x16)
+// ============================================================
+
+function drawCrusaderPawn(c) {
+  // Chain mail hood
+  R(c, "#888888", 5, 0, 6, 4);
+  R(c, "#999999", 6, 1, 4, 2);
+  R(c, "#777777", 5, 3, 6, 1);
+  // Face
+  R(c, "#ffcc99", 6, 4, 4, 2);
+  R(c, "#220000", 7, 4, 1, 1);
+  R(c, "#220000", 9, 4, 1, 1);
+  // Tabard (white with red cross)
+  R(c, "#e8e8e8", 5, 6, 6, 5);
+  R(c, "#cc0000", 7, 6, 2, 5);
+  R(c, "#cc0000", 5, 8, 6, 1);
+  // Chain mail sleeves
+  R(c, "#888888", 4, 6, 1, 3);
+  R(c, "#888888", 11, 6, 1, 3);
+  // Sword
+  R(c, "#c0c0c0", 12, 3, 1, 7);
+  R(c, "#ffd700", 11, 6, 3, 1);
+  // Legs & boots
+  R(c, "#888888", 6, 11, 2, 2);
+  R(c, "#888888", 8, 11, 2, 2);
+  R(c, "#555555", 6, 13, 2, 2);
+  R(c, "#555555", 8, 13, 2, 2);
+}
+
+function drawCrusaderRook(c) {
+  // Castle tower with cross banner
+  // Crenellations
+  R(c, "#999999", 3, 0, 2, 2);
+  R(c, "#999999", 7, 0, 2, 2);
+  R(c, "#999999", 11, 0, 2, 2);
+  R(c, "#aaaaaa", 3, 2, 10, 2);
+  // Tower body (stone)
+  R(c, "#cccccc", 4, 4, 8, 6);
+  R(c, "#bbbbbb", 5, 4, 6, 1);
+  // Cross emblem on tower
+  R(c, "#cc0000", 7, 5, 2, 4);
+  R(c, "#cc0000", 6, 6, 4, 2);
+  // Arrow slit
+  R(c, "#333333", 5, 6, 1, 2);
+  R(c, "#333333", 10, 6, 1, 2);
+  // Base
+  R(c, "#888888", 3, 10, 10, 2);
+  R(c, "#777777", 4, 12, 8, 2);
+  R(c, "#666666", 5, 14, 6, 2);
+}
+
+function drawCrusaderKnight(c) {
+  // Mounted knight with lance
+  // Horse head
+  R(c, "#e8e8e8", 3, 3, 4, 3);
+  R(c, "#cccccc", 2, 4, 2, 2);
+  R(c, "#111111", 3, 4, 1, 1);
+  // Horse armor (barding)
+  R(c, "#e8e8e8", 5, 6, 7, 4);
+  R(c, "#cccccc", 6, 7, 5, 2);
+  R(c, "#cc0000", 7, 7, 3, 2); // cross on barding
+  // Knight rider
+  R(c, "#888888", 8, 0, 4, 3); // helm
+  R(c, "#ffd700", 9, 1, 2, 1); // visor
+  R(c, "#888888", 8, 3, 4, 3); // armor
+  R(c, "#cc0000", 9, 4, 2, 1); // cross
+  // Lance
+  R(c, "#8b4513", 1, 1, 1, 6);
+  R(c, "#c0c0c0", 1, 0, 1, 2);
+  // Horse legs
+  R(c, "#e8e8e8", 5, 10, 2, 4);
+  R(c, "#e8e8e8", 10, 10, 2, 4);
+  R(c, "#888888", 5, 14, 2, 1);
+  R(c, "#888888", 10, 14, 2, 1);
+}
+
+function drawCrusaderBishop(c) {
+  // Templar priest/monk
+  // Mitre (bishop hat)
+  R(c, "#ffffff", 6, 0, 4, 2);
+  R(c, "#ffd700", 7, 0, 2, 1);
+  R(c, "#ffffff", 5, 2, 6, 2);
+  R(c, "#ffd700", 6, 2, 4, 1); // gold band
+  // Face
+  R(c, "#ffcc99", 6, 4, 4, 2);
+  R(c, "#220000", 7, 4, 1, 1);
+  R(c, "#220000", 9, 4, 1, 1);
+  // White robes with red cross
+  R(c, "#e8e8e8", 4, 6, 8, 5);
+  R(c, "#cc0000", 7, 6, 2, 5);
+  R(c, "#cc0000", 5, 8, 6, 1);
+  // Staff/crozier
+  R(c, "#ffd700", 12, 1, 1, 9);
+  R(c, "#ffd700", 11, 1, 2, 1);
+  R(c, "#ffd700", 11, 2, 1, 1);
+  // Feet
+  R(c, "#8b4513", 5, 11, 2, 3);
+  R(c, "#8b4513", 9, 11, 2, 3);
+}
+
+function drawCrusaderQueen(c) {
+  // Templar Grand Commander
+  // Great helm
+  R(c, "#c0c0c0", 4, 0, 8, 5);
+  R(c, "#aaaaaa", 5, 1, 6, 3);
+  R(c, "#333333", 6, 2, 4, 1); // visor slit
+  R(c, "#ffd700", 7, 0, 2, 1); // crown on helm
+  // Plume
+  R(c, "#cc0000", 3, 0, 2, 3);
+  // Armor body
+  R(c, "#c0c0c0", 4, 5, 8, 5);
+  R(c, "#aaaaaa", 5, 6, 6, 3);
+  // Red cross on chest
+  R(c, "#cc0000", 7, 5, 2, 4);
+  R(c, "#cc0000", 5, 7, 6, 1);
+  // Dual swords
+  R(c, "#e0e0e0", 2, 3, 1, 7);
+  R(c, "#ffd700", 2, 9, 1, 1);
+  R(c, "#e0e0e0", 13, 3, 1, 7);
+  R(c, "#ffd700", 13, 9, 1, 1);
+  // Legs
+  R(c, "#888888", 5, 10, 2, 3);
+  R(c, "#888888", 9, 10, 2, 3);
+  R(c, "#666666", 5, 13, 2, 2);
+  R(c, "#666666", 9, 13, 2, 2);
+}
+
+function drawCrusaderKing(c) {
+  // Crusader King with crown
+  // Crown over helm
+  R(c, "#ffd700", 4, 0, 8, 2);
+  R(c, "#ff0000", 7, 0, 2, 1); // ruby
+  R(c, "#ffd700", 5, 0, 1, 1);
+  R(c, "#ffd700", 10, 0, 1, 1);
+  // Great helm
+  R(c, "#c0c0c0", 5, 2, 6, 4);
+  R(c, "#aaaaaa", 6, 3, 4, 2);
+  R(c, "#333333", 6, 3, 4, 1); // visor slit
+  R(c, "#ffd700", 7, 4, 2, 1); // gold trim
+  // Royal cape
+  R(c, "#800020", 3, 4, 2, 7);
+  R(c, "#800020", 11, 4, 2, 7);
+  R(c, "#ffd700", 3, 4, 2, 1);
+  R(c, "#ffd700", 11, 4, 2, 1);
+  // Armor body
+  R(c, "#c0c0c0", 5, 6, 6, 5);
+  R(c, "#aaaaaa", 6, 7, 4, 3);
+  // Gold cross on chest
+  R(c, "#ffd700", 7, 6, 2, 4);
+  R(c, "#ffd700", 6, 8, 4, 1);
+  // Royal scepter
+  R(c, "#ffd700", 13, 2, 1, 8);
+  R(c, "#ffd700", 12, 2, 3, 1);
+  R(c, "#ff0000", 13, 1, 1, 1); // gem
+  // Legs
+  R(c, "#888888", 6, 11, 2, 3);
+  R(c, "#888888", 8, 11, 2, 3);
+  R(c, "#666666", 6, 14, 2, 1);
+  R(c, "#666666", 8, 14, 2, 1);
+}
+
+// ============================================================
 // SPRITE GENERATION FUNCTIONS
 // ============================================================
 
@@ -872,6 +1034,14 @@ const SPRITE_FUNCTIONS = {
     bishop: drawNinjaBishop,
     queen: drawNinjaQueen,
     king: drawNinjaKing
+  },
+  knights: {
+    pawn: drawCrusaderPawn,
+    rook: drawCrusaderRook,
+    knight: drawCrusaderKnight,
+    bishop: drawCrusaderBishop,
+    queen: drawCrusaderQueen,
+    king: drawCrusaderKing
   }
 };
 
