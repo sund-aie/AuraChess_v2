@@ -517,20 +517,51 @@
   // ============================================================
   // CREATE ALL SPRITES
   // ============================================================
-  function createAllSprites() {
-    sprites.white_pawn = mkSprite(drawSoldierPawn);
-    sprites.white_rook = mkSprite(drawSoldierRook);
-    sprites.white_knight = mkSprite(drawSoldierKnight);
-    sprites.white_bishop = mkSprite(drawSoldierBishop);
-    sprites.white_queen = mkSprite(drawSoldierQueen);
-    sprites.white_king = mkSprite(drawSoldierKing);
+  // Local sprite function registry (includes british/monkeys from game.js + themes.js)
+  const LOCAL_SPRITE_FUNCTIONS = {
+    british: {
+      pawn: drawSoldierPawn,
+      rook: drawSoldierRook,
+      knight: drawSoldierKnight,
+      bishop: drawSoldierBishop,
+      queen: drawSoldierQueen,
+      king: drawSoldierKing
+    },
+    monkeys: {
+      pawn: drawMonkeyPawn,
+      rook: drawMonkeyRook,
+      knight: drawMonkeyKnight,
+      bishop: drawMonkeyBishop,
+      queen: drawMonkeyQueen,
+      king: drawMonkeyKing
+    }
+  };
 
-    sprites.black_pawn = mkSprite(drawMonkeyPawn);
-    sprites.black_rook = mkSprite(drawMonkeyRook);
-    sprites.black_knight = mkSprite(drawMonkeyKnight);
-    sprites.black_bishop = mkSprite(drawMonkeyBishop);
-    sprites.black_queen = mkSprite(drawMonkeyQueen);
-    sprites.black_king = mkSprite(drawMonkeyKing);
+  function getSpriteFunctions(themeKey) {
+    return LOCAL_SPRITE_FUNCTIONS[themeKey] || (window.SPRITE_FUNCTIONS && window.SPRITE_FUNCTIONS[themeKey]) || null;
+  }
+
+  function createAllSprites() {
+    const whiteFns = getSpriteFunctions(gameConfig.whitePieces);
+    const blackFns = getSpriteFunctions(gameConfig.blackPieces);
+
+    if (whiteFns) {
+      sprites.white_pawn = mkSprite(whiteFns.pawn);
+      sprites.white_rook = mkSprite(whiteFns.rook);
+      sprites.white_knight = mkSprite(whiteFns.knight);
+      sprites.white_bishop = mkSprite(whiteFns.bishop);
+      sprites.white_queen = mkSprite(whiteFns.queen);
+      sprites.white_king = mkSprite(whiteFns.king);
+    }
+
+    if (blackFns) {
+      sprites.black_pawn = mkSprite(blackFns.pawn);
+      sprites.black_rook = mkSprite(blackFns.rook);
+      sprites.black_knight = mkSprite(blackFns.knight);
+      sprites.black_bishop = mkSprite(blackFns.bishop);
+      sprites.black_queen = mkSprite(blackFns.queen);
+      sprites.black_king = mkSprite(blackFns.king);
+    }
   }
 
   // ============================================================
@@ -2074,18 +2105,6 @@
   }
 
   function generateThemePreviews() {
-    // Generate preview sprites for each piece theme card
-    const previewPieces = {
-      'british': drawSoldierKing,
-      'american': window.SPRITE_FUNCTIONS?.american?.king,
-      'classic_white': window.SPRITE_FUNCTIONS?.classic_white?.king,
-      'knights': drawSoldierKnight,
-      'monkeys': drawMonkeyKing,
-      'arab': window.SPRITE_FUNCTIONS?.arab?.king,
-      'classic_black': window.SPRITE_FUNCTIONS?.classic_black?.king,
-      'ninja': window.SPRITE_FUNCTIONS?.ninja?.king
-    };
-
     document.querySelectorAll('.piece-card').forEach(card => {
       const canvas = card.querySelector('.piece-preview');
       if (!canvas) return;
@@ -2093,15 +2112,15 @@
       ctx.imageSmoothingEnabled = false;
 
       const theme = card.dataset.theme;
-      let drawFn = previewPieces[theme];
+      const themeFns = getSpriteFunctions(theme);
 
-      // Create a temp 16x16 canvas and draw
+      // Create a temp 16x16 canvas and draw the king as preview
       const temp = document.createElement('canvas');
       temp.width = temp.height = 16;
       const tempCtx = temp.getContext('2d');
 
-      if (drawFn) {
-        drawFn(tempCtx);
+      if (themeFns && themeFns.king) {
+        themeFns.king(tempCtx);
       } else {
         // Fallback - draw a simple placeholder
         tempCtx.fillStyle = '#888';
