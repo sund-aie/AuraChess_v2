@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Gordon Ramsay's Chess Battlefield - Flask Server
-Serves the game and provides API for Ollama quotes, GitHub storage, and AI learning.
+Serves the game and provides API for Ollama quotes, local storage, and AI learning.
 Run with: python3 app.py
 """
 
@@ -21,20 +21,36 @@ app = Flask(__name__, static_folder='.')
 
 # Configuration
 OLLAMA_URL = os.getenv('OLLAMA_URL', 'http://localhost:11434')
-GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
-GITHUB_REPO = os.getenv('GITHUB_REPO', 'sund-aie/AuraChess_v2')
 OLLAMA_TIMEOUT = 8  # seconds
+
+# Local storage directories
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+GAMES_DIR = os.path.join(DATA_DIR, 'games')
+ANALYSIS_DIR = os.path.join(DATA_DIR, 'analysis')
+os.makedirs(GAMES_DIR, exist_ok=True)
+os.makedirs(ANALYSIS_DIR, exist_ok=True)
 
 # Import our modules (created separately)
 try:
-    from github_storage import GitHubStorage
     from ai_learning import AILearning
-    github = GitHubStorage(GITHUB_TOKEN, GITHUB_REPO)
     ai_learning = AILearning()
 except ImportError:
-    github = None
     ai_learning = None
-    print("Warning: github_storage or ai_learning modules not found")
+    print("Warning: ai_learning module not found")
+
+
+def get_all_local_games():
+    games = []
+    if os.path.exists(GAMES_DIR):
+        for filename in os.listdir(GAMES_DIR):
+            if filename.endswith('.json'):
+                filepath = os.path.join(GAMES_DIR, filename)
+                try:
+                    with open(filepath, 'r') as f:
+                        games.append(json.load(f))
+                except:
+                    pass
+    return games
 
 # ============================================================
 # STATIC FILE SERVING
@@ -171,10 +187,7 @@ def generate_quote():
 
 @app.route('/api/save-game', methods=['POST'])
 def save_game():
-    """Save a completed game to GitHub"""
-    if not github:
-        return jsonify({'success': False, 'error': 'GitHub storage not configured'}), 500
-
+    """Save a completed game to local filesystem"""
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'error': 'No data provided'}), 400
@@ -185,18 +198,26 @@ def save_game():
     data['savedAt'] = datetime.now().isoformat()
 
     try:
-        result = github.save_game(game_id, data)
+        # Save game to local file
+        filepath = os.path.join(GAMES_DIR, f"{game_id}.json")
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
 
         # Trigger pattern re-analysis
+        games_analyzed = 0
         if ai_learning:
-            games = github.get_all_games()
+            games = get_all_local_games()
+            games_analyzed = len(games)
             patterns = ai_learning.analyze_all_games(games, data.get('playerId'))
-            github.save_patterns(data.get('playerId'), patterns)
+            player_id = data.get('playerId', 'default')
+            analysis_path = os.path.join(ANALYSIS_DIR, f"player_{player_id}.json")
+            with open(analysis_path, 'w') as f:
+                json.dump(patterns, f, indent=2)
 
         return jsonify({
             'success': True,
             'gameId': game_id,
-            'gamesAnalyzed': result.get('totalGames', 0)
+            'gamesAnalyzed': games_analyzed
         })
     except Exception as e:
         print(f"Error saving game: {e}")
@@ -211,7 +232,7 @@ def get_player_patterns():
     """Get learned patterns for a player"""
     player_id = request.args.get('playerId', 'default')
 
-    if not github or not ai_learning:
+    if not ai_learning:
         # Return empty patterns if not configured
         return jsonify({
             'playerId': player_id,
@@ -221,10 +242,10 @@ def get_player_patterns():
         })
 
     try:
-        # Get stored patterns
-        patterns = github.get_patterns(player_id)
+        # Read stored patterns from local file
+        analysis_path = os.path.join(ANALYSIS_DIR, f"player_{player_id}.json")
 
-        if not patterns:
+        if not os.path.exists(analysis_path):
             # No patterns yet, return empty
             return jsonify({
                 'playerId': player_id,
@@ -232,6 +253,9 @@ def get_player_patterns():
                 'patterns': {},
                 'aiAdaptations': {}
             })
+
+        with open(analysis_path, 'r') as f:
+            patterns = json.load(f)
 
         # Generate AI adaptations based on patterns
         adaptations = ai_learning.generate_gradual_adaptations(patterns)
@@ -290,7 +314,6 @@ Suggest 2-3 subtle strategic adjustments (not too aggressive, help them learn):"
 def health_check():
     """Health check endpoint"""
     ollama_status = 'disconnected'
-    github_status = 'disconnected'
 
     # Check Ollama
     try:
@@ -300,18 +323,10 @@ def health_check():
     except:
         pass
 
-    # Check GitHub
-    if github and GITHUB_TOKEN:
-        try:
-            if github.test_connection():
-                github_status = 'connected'
-        except:
-            pass
-
     return jsonify({
         'status': 'ok',
         'ollama': ollama_status,
-        'github': github_status,
+        'storage': 'local',
         'timestamp': datetime.now().isoformat()
     })
 
@@ -324,8 +339,7 @@ if __name__ == '__main__':
     print("GORDON RAMSAY'S CHESS BATTLEFIELD - Server Starting")
     print("=" * 60)
     print(f"Ollama URL: {OLLAMA_URL}")
-    print(f"GitHub Repo: {GITHUB_REPO}")
-    print(f"GitHub Token: {'configured' if GITHUB_TOKEN else 'NOT SET'}")
+    print(f"Storage: Local filesystem ({DATA_DIR})")
     print("-" * 60)
     print("Open http://localhost:8080 in your browser")
     print("=" * 60)
