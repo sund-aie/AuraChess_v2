@@ -927,149 +927,264 @@ function drawArabKing(c) {
 // ============================================================
 
 function drawNinjaPawn(c) {
-  // Hood
-  R(c, "#1a1a1a", 5, 0, 6, 4);
-  R(c, "#2a2a2a", 6, 1, 4, 2);
-  // Eyes only
-  R(c, "#ffffff", 6, 2, 1, 1);
-  R(c, "#ffffff", 9, 2, 1, 1);
-  R(c, "#000000", 6, 2, 1, 1);
-  R(c, "#000000", 9, 2, 1, 1);
-  // Body
-  R(c, "#1a1a1a", 5, 4, 6, 6);
-  R(c, "#2a2a2a", 6, 5, 4, 4);
-  // Katana on back
-  R(c, "#c0c0c0", 10, 1, 1, 7);
-  R(c, "#8b4513", 10, 7, 1, 2);
-  // Legs
-  R(c, "#1a1a1a", 6, 10, 2, 4);
-  R(c, "#1a1a1a", 8, 10, 2, 4);
-  R(c, "#333333", 6, 14, 2, 1);
-  R(c, "#333333", 8, 14, 2, 1);
+  // Shadow Genin - stealthy foot soldier with shuriken
+  // Black hood/mask - wrapped tight
+  R(c, "#0d0d0d", 5, 0, 6, 2);   // top of hood
+  R(c, "#1a1a1a", 4, 2, 8, 3);   // full head wrap
+  R(c, "#141414", 5, 2, 6, 2);    // inner shadow
+  // Glowing red eyes peering through mask slit
+  R(c, "#2a2a2a", 5, 3, 6, 1);   // mask slit
+  R(c, "#ff0033", 6, 3, 1, 1);    // left eye glow
+  R(c, "#ff0033", 9, 3, 1, 1);    // right eye glow
+  R(c, "#cc0022", 7, 3, 1, 1);    // eye reflection L
+  R(c, "#cc0022", 8, 3, 1, 1);    // eye reflection R
+  // Body - dark gi with purple trim
+  R(c, "#0d0d0d", 4, 5, 8, 5);   // torso
+  R(c, "#1a1a1a", 5, 5, 6, 4);   // inner gi
+  R(c, "#3a1a5e", 4, 5, 1, 5);   // left purple trim
+  R(c, "#3a1a5e", 11, 5, 1, 5);  // right purple trim
+  R(c, "#2d1450", 6, 6, 4, 1);   // belt/obi
+  // Shuriken in right hand
+  R(c, "#d0d0d0", 12, 5, 1, 1);  // star center
+  R(c, "#b0b0b0", 11, 4, 1, 1);  // star point top-left
+  R(c, "#b0b0b0", 13, 4, 1, 1);  // star point top-right
+  R(c, "#b0b0b0", 11, 6, 1, 1);  // star point bottom-left
+  R(c, "#b0b0b0", 13, 6, 1, 1);  // star point bottom-right
+  // Arms
+  R(c, "#0d0d0d", 3, 6, 1, 3);   // left arm
+  R(c, "#0d0d0d", 12, 6, 1, 3);  // right arm
+  // Leg wraps - tapered stance
+  R(c, "#0d0d0d", 5, 10, 2, 4);  // left leg
+  R(c, "#0d0d0d", 9, 10, 2, 4);  // right leg
+  R(c, "#1a1a1a", 5, 11, 1, 2);  // left leg wrap
+  R(c, "#1a1a1a", 10, 11, 1, 2); // right leg wrap
+  // Tabi boots
+  R(c, "#222222", 5, 14, 2, 2);  // left boot
+  R(c, "#222222", 9, 14, 2, 2);  // right boot
 }
 
 function drawNinjaRook(c) {
-  // Fortress tower (Japanese style)
-  // Roof
-  R(c, "#2a2a2a", 2, 0, 12, 2);
-  R(c, "#1a1a1a", 3, 2, 10, 1);
-  // Upper level
-  R(c, "#f5f5dc", 3, 3, 10, 3);
-  R(c, "#e8e8c8", 4, 4, 8, 1);
+  // Shadow Pagoda - dark Japanese fortress
+  // Curved top roof (3-tiered pagoda)
+  R(c, "#1a0a2e", 3, 0, 10, 1);  // top roof overhang
+  R(c, "#2d1450", 4, 0, 8, 1);   // roof accent
+  R(c, "#0d0d0d", 5, 1, 6, 1);   // upper roof shadow
+  // Shachihoko ornament on top
+  R(c, "#ffd700", 7, 0, 2, 1);   // gold ornament
+  // Upper floor
+  R(c, "#1a1a1a", 4, 2, 8, 2);   // dark walls
+  R(c, "#ff0033", 6, 2, 1, 1);   // left lantern glow
+  R(c, "#ff0033", 9, 2, 1, 1);   // right lantern glow
+  R(c, "#2a2a2a", 5, 3, 6, 1);   // upper window strip
+  // Middle roof
+  R(c, "#1a0a2e", 2, 4, 12, 1);  // wide mid-roof
+  R(c, "#2d1450", 3, 4, 10, 1);  // roof purple accent
+  // Middle floor
+  R(c, "#1a1a1a", 3, 5, 10, 2);  // dark walls
+  R(c, "#2a2a2a", 4, 5, 8, 1);   // wall detail
+  R(c, "#ff0033", 5, 6, 1, 1);   // lantern left
+  R(c, "#ff0033", 10, 6, 1, 1);  // lantern right
+  R(c, "#0d0d0d", 6, 5, 4, 2);   // center shadow window
   // Lower roof
-  R(c, "#2a2a2a", 2, 6, 12, 1);
-  // Lower level
-  R(c, "#f5f5dc", 3, 7, 10, 4);
-  R(c, "#e8e8c8", 4, 8, 8, 2);
-  // Windows
-  R(c, "#1a1a1a", 5, 8, 2, 2);
-  R(c, "#1a1a1a", 9, 8, 2, 2);
-  // Base
-  R(c, "#666666", 2, 11, 12, 4);
-  R(c, "#555555", 3, 12, 10, 2);
+  R(c, "#1a0a2e", 1, 7, 14, 1);  // widest roof
+  R(c, "#2d1450", 2, 7, 12, 1);  // roof accent
+  // Ground floor - heavy stone base
+  R(c, "#1a1a1a", 2, 8, 12, 4);  // walls
+  R(c, "#2a2a2a", 3, 8, 10, 3);  // inner wall
+  R(c, "#0d0d0d", 6, 9, 4, 3);   // dark doorway
+  R(c, "#3a1a5e", 7, 9, 2, 2);   // purple inner glow
+  // Stone foundation
+  R(c, "#333333", 2, 12, 12, 2); // stone base
+  R(c, "#444444", 3, 12, 10, 1); // base highlight
+  R(c, "#222222", 2, 14, 12, 2); // foundation
 }
 
 function drawNinjaKnight(c) {
-  // Ninja on horseback
-  // Horse head
-  R(c, "#1a1a1a", 3, 3, 4, 3);
-  R(c, "#2a2a2a", 2, 4, 2, 2);
-  R(c, "#ff0000", 4, 4, 1, 1); // red eye
+  // Shadow Stallion - spectral black horse with ninja rider
+  // Ninja rider head
+  R(c, "#0d0d0d", 8, 0, 4, 3);  // hood
+  R(c, "#1a1a1a", 9, 1, 2, 1);  // inner hood
+  R(c, "#ff0033", 9, 1, 1, 1);  // left eye glow
+  R(c, "#ff0033", 10, 1, 1, 1); // right eye glow
+  // Rider body on horseback
+  R(c, "#0d0d0d", 8, 3, 4, 3);  // rider torso
+  R(c, "#3a1a5e", 9, 3, 2, 1);  // purple collar
+  // Kusarigama weapon extended
+  R(c, "#d0d0d0", 12, 1, 1, 3); // chain sickle blade
+  R(c, "#b0b0b0", 13, 2, 1, 1); // blade tip
+  R(c, "#888888", 12, 4, 1, 2); // chain links
+  // Horse head - ghostly
+  R(c, "#1a1a1a", 2, 3, 4, 3);  // head shape
+  R(c, "#0d0d0d", 1, 4, 2, 2);  // muzzle
+  R(c, "#2a2a2a", 3, 3, 2, 2);  // face detail
+  R(c, "#ff0033", 3, 4, 1, 1);  // red eye
+  // Ear
+  R(c, "#1a1a1a", 3, 2, 1, 1);  // ear
+  // Horse mane - purple tinted
+  R(c, "#3a1a5e", 5, 2, 1, 3);  // mane
+  R(c, "#2d1450", 6, 3, 1, 2);  // mane shadow
   // Horse body
-  R(c, "#1a1a1a", 5, 6, 7, 4);
-  R(c, "#2a2a2a", 6, 7, 5, 2);
-  // Ninja rider
-  R(c, "#1a1a1a", 8, 2, 4, 4);
-  R(c, "#ffffff", 9, 3, 1, 1); // eye
-  R(c, "#ffffff", 10, 3, 1, 1);
-  // Throwing stars
-  R(c, "#c0c0c0", 12, 3, 2, 2);
-  // Horse legs
-  R(c, "#1a1a1a", 5, 10, 2, 5);
-  R(c, "#1a1a1a", 10, 10, 2, 5);
-  R(c, "#333333", 5, 14, 2, 1);
-  R(c, "#333333", 10, 14, 2, 1);
+  R(c, "#1a1a1a", 4, 6, 8, 4);  // main body
+  R(c, "#2a2a2a", 5, 7, 6, 2);  // body highlight
+  R(c, "#0d0d0d", 4, 8, 2, 2);  // chest shadow
+  // Spectral wisps under horse
+  R(c, "#3a1a5e", 3, 9, 1, 1);  // purple wisp
+  R(c, "#2d1450", 12, 8, 1, 1); // purple wisp
+  // Horse legs - in gallop pose
+  R(c, "#1a1a1a", 4, 10, 2, 4); // front left leg
+  R(c, "#1a1a1a", 6, 10, 2, 3); // front right (raised)
+  R(c, "#1a1a1a", 9, 10, 2, 4); // back left leg
+  R(c, "#1a1a1a", 11, 10, 2, 3);// back right (raised)
+  // Hooves
+  R(c, "#333333", 4, 14, 2, 2); // front hoof
+  R(c, "#333333", 9, 14, 2, 2); // back hoof
+  // Smoke/shadow trail
+  R(c, "#2a2a2a", 13, 10, 2, 1);// shadow trail
+  R(c, "#1a1a1a", 14, 11, 1, 1);// wisp
 }
 
 function drawNinjaBishop(c) {
-  // Shadow ninja with kusarigama
-  // Hood
-  R(c, "#1a1a1a", 5, 0, 6, 4);
-  R(c, "#2a2a2a", 6, 1, 4, 2);
-  // Eyes
-  R(c, "#ff0000", 6, 2, 1, 1);
-  R(c, "#ff0000", 9, 2, 1, 1);
-  // Body
-  R(c, "#1a1a1a", 4, 4, 8, 6);
-  R(c, "#2a2a2a", 5, 5, 6, 4);
-  // Kusarigama (chain sickle)
-  R(c, "#c0c0c0", 11, 2, 2, 1);
-  R(c, "#c0c0c0", 12, 3, 1, 2);
-  R(c, "#888888", 12, 5, 1, 4); // chain
-  R(c, "#888888", 11, 8, 1, 1);
-  R(c, "#c0c0c0", 10, 9, 2, 1); // weight
-  // Legs
-  R(c, "#1a1a1a", 5, 10, 2, 4);
-  R(c, "#1a1a1a", 9, 10, 2, 4);
-  R(c, "#333333", 5, 14, 2, 1);
-  R(c, "#333333", 9, 14, 2, 1);
+  // Shadow Monk - mystic ninja with dark arts scroll
+  // Conical straw hat (amigasa) - deep purple
+  R(c, "#2d1450", 3, 0, 10, 1); // hat brim wide
+  R(c, "#3a1a5e", 4, 0, 8, 1);  // hat highlight
+  R(c, "#1a0a2e", 5, 1, 6, 1);  // hat mid
+  R(c, "#2d1450", 6, 1, 4, 1);  // hat accent
+  // Face behind veil
+  R(c, "#0d0d0d", 5, 2, 6, 3);  // dark mask
+  R(c, "#1a1a1a", 6, 2, 4, 2);  // inner
+  // Glowing mystic eyes - bright green
+  R(c, "#00ff66", 6, 3, 1, 1);  // left eye
+  R(c, "#00ff66", 9, 3, 1, 1);  // right eye
+  R(c, "#00cc44", 7, 3, 1, 1);  // eye glow spread
+  R(c, "#00cc44", 8, 3, 1, 1);  // eye glow spread
+  // Monk robes - flowing dark with mystic symbols
+  R(c, "#0d0d0d", 3, 5, 10, 7); // outer robe
+  R(c, "#1a1a1a", 4, 5, 8, 6);  // inner robe
+  R(c, "#2a2a2a", 5, 6, 6, 4);  // robe folds
+  // Mystic kanji symbol on chest
+  R(c, "#00ff66", 6, 6, 1, 2);  // kanji stroke 1
+  R(c, "#00ff66", 7, 7, 2, 1);  // kanji stroke 2
+  R(c, "#00ff66", 9, 6, 1, 2);  // kanji stroke 3
+  // Enchanted scroll in left hand
+  R(c, "#f5f5dc", 2, 5, 1, 4);  // scroll shaft
+  R(c, "#e8d8a0", 2, 4, 1, 1);  // scroll top
+  R(c, "#e8d8a0", 2, 9, 1, 1);  // scroll bottom
+  R(c, "#00ff66", 2, 6, 1, 1);  // glowing text
+  R(c, "#00ff66", 2, 8, 1, 1);  // glowing text
+  // Spirit orb in right hand
+  R(c, "#00ff66", 13, 6, 2, 2); // orb glow
+  R(c, "#88ffaa", 13, 6, 1, 1); // orb highlight
+  // Arms
+  R(c, "#0d0d0d", 2, 6, 1, 3);  // left arm
+  R(c, "#0d0d0d", 13, 7, 1, 2); // right arm
+  // Robe bottom hem
+  R(c, "#3a1a5e", 3, 11, 10, 1);// purple hem
+  // Legs hidden in robe, sandals peek
+  R(c, "#0d0d0d", 5, 12, 2, 2); // left robe
+  R(c, "#0d0d0d", 9, 12, 2, 2); // right robe
+  R(c, "#4a3520", 5, 14, 2, 2); // left sandal
+  R(c, "#4a3520", 9, 14, 2, 2); // right sandal
 }
 
 function drawNinjaQueen(c) {
-  // Kunoichi (female ninja)
-  // Hair/mask
-  R(c, "#1a1a1a", 4, 0, 8, 4);
-  R(c, "#2a2a2a", 5, 1, 6, 2);
-  // Face with mask
-  R(c, "#ffe0bd", 6, 2, 4, 2);
-  R(c, "#220000", 7, 2, 1, 1);
-  R(c, "#220000", 9, 2, 1, 1);
-  R(c, "#cc0066", 7, 3, 2, 1); // lips
-  // Body
-  R(c, "#1a1a1a", 4, 4, 8, 6);
-  R(c, "#cc0066", 6, 5, 4, 1); // sash
-  R(c, "#2a2a2a", 5, 6, 6, 3);
-  // Twin sai
-  R(c, "#c0c0c0", 2, 4, 1, 5);
-  R(c, "#c0c0c0", 1, 5, 1, 1);
-  R(c, "#c0c0c0", 3, 5, 1, 1);
-  R(c, "#c0c0c0", 13, 4, 1, 5);
-  R(c, "#c0c0c0", 12, 5, 1, 1);
-  R(c, "#c0c0c0", 14, 5, 1, 1);
-  // Legs
-  R(c, "#1a1a1a", 5, 10, 2, 4);
-  R(c, "#1a1a1a", 9, 10, 2, 4);
-  R(c, "#333333", 5, 14, 2, 1);
-  R(c, "#333333", 9, 14, 2, 1);
+  // Kunoichi Grandmaster - deadly female ninja assassin
+  // Long dark hair flowing back
+  R(c, "#0d0d0d", 4, 0, 8, 2);  // hair top
+  R(c, "#1a1a1a", 3, 1, 2, 4);  // hair left flowing
+  R(c, "#1a1a1a", 11, 1, 2, 4); // hair right flowing
+  R(c, "#0d0d0d", 13, 3, 1, 3); // hair trail right
+  // Face - half-mask with visible eye
+  R(c, "#0d0d0d", 5, 2, 6, 3);  // head
+  R(c, "#ffe0bd", 6, 2, 4, 2);  // visible face
+  R(c, "#0d0d0d", 6, 3, 4, 1);  // lower mask
+  R(c, "#cc0044", 7, 2, 1, 1);  // left eye (crimson)
+  R(c, "#cc0044", 8, 2, 1, 1);  // right eye (crimson)
+  // Ornamental hairpin
+  R(c, "#ffd700", 5, 0, 1, 1);  // gold hairpin
+  R(c, "#ff0033", 4, 0, 1, 1);  // red ornament
+  // Body - sleek battle kunoichi outfit
+  R(c, "#0d0d0d", 4, 5, 8, 6);  // torso armor
+  R(c, "#1a1a1a", 5, 5, 6, 5);  // inner armor
+  R(c, "#cc0044", 6, 5, 4, 1);  // crimson collar
+  R(c, "#cc0044", 6, 7, 4, 1);  // crimson sash/obi
+  R(c, "#3a1a5e", 5, 6, 1, 1);  // left trim
+  R(c, "#3a1a5e", 10, 6, 1, 1); // right trim
+  // Twin wakizashi blades - crossed
+  R(c, "#d0d0d0", 2, 3, 1, 6);  // left blade
+  R(c, "#e8e8e8", 2, 3, 1, 1);  // blade tip L
+  R(c, "#8b4513", 2, 8, 1, 1);  // hilt L
+  R(c, "#ffd700", 2, 9, 1, 1);  // pommel L
+  R(c, "#d0d0d0", 13, 3, 1, 6); // right blade
+  R(c, "#e8e8e8", 13, 3, 1, 1); // blade tip R
+  R(c, "#8b4513", 13, 8, 1, 1); // hilt R
+  R(c, "#ffd700", 13, 9, 1, 1); // pommel R
+  // Arms extended
+  R(c, "#0d0d0d", 3, 6, 1, 3);  // left arm
+  R(c, "#0d0d0d", 12, 6, 1, 3); // right arm
+  // Legs - battle stance
+  R(c, "#0d0d0d", 5, 11, 2, 3); // left leg
+  R(c, "#0d0d0d", 9, 11, 2, 3); // right leg
+  R(c, "#cc0044", 5, 11, 2, 1); // red leg wrap L
+  R(c, "#cc0044", 9, 11, 2, 1); // red leg wrap R
+  // Tabi boots
+  R(c, "#222222", 5, 14, 2, 2); // left boot
+  R(c, "#222222", 9, 14, 2, 2); // right boot
 }
 
 function drawNinjaKing(c) {
-  // Shadow master
-  // Demon mask
-  R(c, "#8b0000", 5, 0, 6, 4);
-  R(c, "#ff0000", 6, 1, 4, 2);
-  R(c, "#ffff00", 6, 1, 1, 1); // eye
-  R(c, "#ffff00", 9, 1, 1, 1);
-  R(c, "#ffffff", 7, 2, 2, 1); // fangs
-  // Horns
-  R(c, "#1a1a1a", 4, 0, 1, 2);
-  R(c, "#1a1a1a", 11, 0, 1, 2);
-  // Dark robes
-  R(c, "#1a1a1a", 3, 4, 10, 7);
-  R(c, "#2a2a2a", 4, 5, 8, 5);
-  R(c, "#8b0000", 6, 6, 4, 2); // symbol
-  // Ninjato blade
-  R(c, "#c0c0c0", 13, 2, 1, 9);
-  R(c, "#ffd700", 13, 10, 1, 1);
-  R(c, "#1a1a1a", 13, 11, 1, 2);
-  // Smoke effects
-  R(c, "#4a4a4a", 2, 8, 1, 2);
-  R(c, "#3a3a3a", 1, 9, 1, 1);
-  // Legs
-  R(c, "#1a1a1a", 5, 11, 2, 3);
-  R(c, "#1a1a1a", 9, 11, 2, 3);
-  R(c, "#333333", 5, 14, 2, 1);
-  R(c, "#333333", 9, 14, 2, 1);
+  // Shadow Shogun - demonic oni-masked warlord
+  // Oni mask with horns - terrifying demon face
+  R(c, "#0d0d0d", 3, 0, 1, 2);  // left horn base
+  R(c, "#1a0a2e", 2, 0, 1, 1);  // left horn tip
+  R(c, "#0d0d0d", 12, 0, 1, 2); // right horn base
+  R(c, "#1a0a2e", 13, 0, 1, 1); // right horn tip
+  // Oni mask
+  R(c, "#8b0000", 4, 0, 8, 4);  // red demon mask
+  R(c, "#cc0000", 5, 1, 6, 2);  // mask face
+  R(c, "#ff0000", 6, 1, 4, 1);  // mask highlight
+  // Burning yellow eyes
+  R(c, "#ffff00", 5, 1, 2, 1);  // left eye blaze
+  R(c, "#ffff00", 9, 1, 2, 1);  // right eye blaze
+  R(c, "#ffaa00", 6, 2, 1, 1);  // left eye lower
+  R(c, "#ffaa00", 9, 2, 1, 1);  // right eye lower
+  // Fanged mouth
+  R(c, "#ffffff", 6, 3, 1, 1);  // left fang
+  R(c, "#ffffff", 9, 3, 1, 1);  // right fang
+  R(c, "#440000", 7, 3, 2, 1);  // mouth darkness
+  // Shogun helmet crest
+  R(c, "#ffd700", 7, 0, 2, 1);  // gold crest
+  // Heavy shadow armor
+  R(c, "#0d0d0d", 3, 4, 10, 7); // outer armor
+  R(c, "#1a1a1a", 4, 4, 8, 6);  // inner armor
+  R(c, "#2a2a2a", 5, 5, 6, 4);  // armor detail
+  // Glowing demon kanji on chest
+  R(c, "#ff0033", 6, 5, 1, 3);  // kanji stroke 1
+  R(c, "#ff0033", 7, 6, 2, 1);  // kanji stroke 2
+  R(c, "#ff0033", 9, 5, 1, 3);  // kanji stroke 3
+  // Spiked shoulder pauldrons
+  R(c, "#333333", 3, 4, 1, 2);  // left pauldron
+  R(c, "#444444", 2, 4, 1, 1);  // left spike
+  R(c, "#333333", 12, 4, 1, 2); // right pauldron
+  R(c, "#444444", 13, 4, 1, 1); // right spike
+  // Shadow Nodachi (great sword) on back
+  R(c, "#d0d0d0", 14, 0, 1, 10);// blade
+  R(c, "#e8e8e8", 14, 0, 1, 2); // blade edge
+  R(c, "#ffd700", 14, 9, 1, 1); // tsuba (guard)
+  R(c, "#5c3a1e", 14, 10, 1, 3);// handle wrap
+  // Dark energy / shadow aura
+  R(c, "#3a1a5e", 2, 7, 1, 2);  // left aura
+  R(c, "#2d1450", 1, 8, 1, 1);  // left wisp
+  R(c, "#3a1a5e", 13, 7, 1, 2); // right aura
+  R(c, "#2d1450", 14, 8, 1, 1); // right wisp (below sword)
+  // Armored legs
+  R(c, "#0d0d0d", 5, 11, 2, 3); // left leg
+  R(c, "#0d0d0d", 9, 11, 2, 3); // right leg
+  R(c, "#333333", 5, 12, 2, 1); // left shin guard
+  R(c, "#333333", 9, 12, 2, 1); // right shin guard
+  // Armored boots
+  R(c, "#222222", 5, 14, 2, 2); // left boot
+  R(c, "#222222", 9, 14, 2, 2); // right boot
 }
 
 // ============================================================
