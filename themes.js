@@ -590,156 +590,240 @@ function drawAmericanKing(c) {
 
 function drawArabPawn(c) {
   // Keffiyeh (head covering)
-  R(c, "#f5f5dc", 5, 0, 6, 4);
-  R(c, "#cc0000", 6, 1, 4, 1);
-  R(c, "#ffffff", 5, 3, 6, 1);
+  R(c, "#f0e6d0", 5, 0, 6, 4);
+  R(c, "#e0d0b8", 6, 0, 4, 1);
+  R(c, "#cc2222", 5, 1, 6, 1); // red agal band
+  R(c, "#f0e6d0", 5, 2, 6, 2);
+  R(c, "#e0d0b8", 4, 2, 1, 2); // draping side
+  R(c, "#e0d0b8", 11, 2, 1, 2);
   // Face
-  R(c, "#c68642", 6, 4, 4, 2);
-  R(c, "#220000", 7, 4, 1, 1);
-  R(c, "#220000", 9, 4, 1, 1);
-  R(c, "#1a1a1a", 7, 5, 2, 1); // beard
-  // Robe
-  R(c, "#f5f5dc", 5, 6, 6, 5);
-  R(c, "#e8e8c8", 6, 7, 4, 3);
+  R(c, "#d4a06a", 6, 4, 4, 2);
+  R(c, "#111111", 7, 4, 1, 1); // eye
+  R(c, "#111111", 9, 4, 1, 1); // eye
+  R(c, "#1a1a1a", 6, 5, 4, 1); // beard
+  R(c, "#111111", 7, 5, 2, 1); // thick beard
+  // White thobe robe
+  R(c, "#f0e6d0", 5, 6, 6, 5);
+  R(c, "#e0d0b8", 6, 7, 4, 3);
+  R(c, "#d0c0a8", 5, 10, 6, 1); // hem shadow
   // AK-47
-  R(c, "#8b4513", 11, 4, 1, 6);
-  R(c, "#333333", 11, 3, 1, 2);
-  R(c, "#333333", 12, 5, 1, 3);
-  R(c, "#ffd700", 11, 2, 1, 1);
+  R(c, "#8b6914", 12, 3, 1, 7); // wooden body
+  R(c, "#333333", 12, 2, 1, 2); // barrel
+  R(c, "#222222", 13, 4, 1, 4); // magazine
+  R(c, "#555555", 12, 1, 1, 1); // muzzle
+  // Ammo belt
+  R(c, "#8b6914", 4, 7, 1, 3);
+  R(c, "#ffd700", 4, 8, 1, 1);
   // Sandals
-  R(c, "#8b4513", 6, 11, 2, 3);
-  R(c, "#8b4513", 8, 11, 2, 3);
-  R(c, "#6b3410", 6, 14, 2, 1);
-  R(c, "#6b3410", 8, 14, 2, 1);
+  R(c, "#8b6914", 6, 11, 2, 3);
+  R(c, "#8b6914", 8, 11, 2, 3);
+  R(c, "#6b4410", 6, 14, 2, 1);
+  R(c, "#6b4410", 8, 14, 2, 1);
 }
 
 function drawArabRook(c) {
-  // Fortress/Camel with rider
-  // Camel head
-  R(c, "#c2a366", 3, 0, 4, 3);
-  R(c, "#a08050", 2, 1, 2, 2);
-  R(c, "#111111", 3, 1, 1, 1);
+  // War Camel with armored rider
+  // Camel head and neck
+  R(c, "#c9a84c", 2, 2, 3, 3);
+  R(c, "#b89840", 1, 3, 2, 2);
+  R(c, "#111111", 2, 3, 1, 1); // eye
+  R(c, "#d4b860", 1, 4, 1, 1); // nostril area
+  R(c, "#c9a84c", 3, 0, 2, 3); // neck
   // Camel body
-  R(c, "#c2a366", 4, 3, 8, 5);
-  R(c, "#a08050", 5, 4, 6, 3);
+  R(c, "#c9a84c", 4, 4, 8, 4);
+  R(c, "#b89840", 5, 5, 6, 2);
   // Hump
-  R(c, "#c2a366", 7, 2, 4, 2);
-  // Rider
-  R(c, "#f5f5dc", 8, 0, 4, 2);
-  R(c, "#c68642", 9, 2, 2, 1);
-  R(c, "#f5f5dc", 8, 3, 4, 2);
+  R(c, "#d4b860", 6, 2, 4, 3);
+  R(c, "#c9a84c", 7, 3, 2, 1);
+  // Rider on top
+  R(c, "#f0e6d0", 8, 0, 3, 2); // keffiyeh
+  R(c, "#cc2222", 9, 0, 1, 1); // agal
+  R(c, "#d4a06a", 9, 2, 1, 1); // face
+  R(c, "#f0e6d0", 8, 3, 3, 2); // robe
+  // Rider's spear
+  R(c, "#8b6914", 12, 0, 1, 6);
+  R(c, "#c0c0c0", 12, 0, 1, 1); // spear tip
+  // Saddle blanket
+  R(c, "#cc2222", 5, 3, 5, 1);
+  R(c, "#ffd700", 7, 3, 1, 1); // gold trim
+  // Supply bags
+  R(c, "#8b6914", 4, 5, 2, 2);
+  R(c, "#a08040", 11, 5, 2, 2);
   // Camel legs
-  R(c, "#c2a366", 4, 8, 2, 5);
-  R(c, "#c2a366", 10, 8, 2, 5);
-  R(c, "#8b7355", 4, 13, 2, 2);
-  R(c, "#8b7355", 10, 13, 2, 2);
-  // Supplies
-  R(c, "#8b4513", 5, 5, 2, 2);
-  R(c, "#8b4513", 11, 5, 2, 2);
+  R(c, "#c9a84c", 4, 8, 2, 5);
+  R(c, "#c9a84c", 10, 8, 2, 5);
+  R(c, "#b89840", 5, 9, 1, 3);
+  R(c, "#b89840", 11, 9, 1, 3);
+  // Hooves
+  R(c, "#6b5030", 4, 13, 2, 2);
+  R(c, "#6b5030", 10, 13, 2, 2);
 }
 
 function drawArabKnight(c) {
-  // Horseman with scimitar
-  // Horse head
-  R(c, "#4a3728", 3, 2, 4, 3);
-  R(c, "#3a2718", 2, 3, 2, 2);
-  R(c, "#111111", 3, 3, 1, 1);
+  // Arabian horseman with scimitar
+  // Arabian horse head
+  R(c, "#3a2a18", 2, 2, 4, 3);
+  R(c, "#2a1a08", 1, 3, 2, 2);
+  R(c, "#111111", 2, 3, 1, 1); // eye
+  R(c, "#f0e6d0", 1, 4, 1, 1); // blaze
+  // Bridle
+  R(c, "#cc2222", 3, 4, 2, 1);
+  R(c, "#ffd700", 4, 4, 1, 1); // gold bit
   // Horse body
-  R(c, "#4a3728", 5, 5, 7, 4);
-  R(c, "#3a2718", 6, 6, 5, 2);
-  // Rider (Arab warrior)
-  R(c, "#f5f5dc", 8, 0, 4, 2);
-  R(c, "#c68642", 9, 2, 2, 1);
-  R(c, "#f5f5dc", 8, 3, 4, 3);
-  // Scimitar
-  R(c, "#c0c0c0", 12, 2, 2, 1);
-  R(c, "#c0c0c0", 13, 3, 1, 1);
-  R(c, "#c0c0c0", 13, 4, 1, 2);
-  R(c, "#ffd700", 12, 5, 1, 1);
-  // Horse legs
-  R(c, "#4a3728", 5, 9, 2, 5);
-  R(c, "#4a3728", 10, 9, 2, 5);
-  R(c, "#2a1708", 5, 14, 2, 1);
-  R(c, "#2a1708", 10, 14, 2, 1);
+  R(c, "#3a2a18", 4, 5, 8, 4);
+  R(c, "#2a1a08", 5, 6, 6, 2);
+  // Decorative saddle blanket
+  R(c, "#cc2222", 6, 4, 5, 1);
+  R(c, "#ffd700", 6, 5, 5, 1);
+  R(c, "#cc2222", 6, 5, 1, 1);
+  R(c, "#cc2222", 10, 5, 1, 1);
+  // Rider
+  R(c, "#f0e6d0", 8, 0, 4, 2); // keffiyeh
+  R(c, "#cc2222", 9, 0, 2, 1); // agal
+  R(c, "#d4a06a", 9, 2, 2, 1); // face
+  R(c, "#111111", 9, 2, 1, 1); // eye
+  R(c, "#f0e6d0", 8, 3, 4, 2); // robe
+  // Raised scimitar
+  R(c, "#e0e0e0", 13, 0, 1, 1); // tip
+  R(c, "#c0c0c0", 13, 1, 1, 1);
+  R(c, "#c0c0c0", 12, 2, 1, 1); // curved blade
+  R(c, "#c0c0c0", 12, 3, 1, 1);
+  R(c, "#ffd700", 12, 4, 1, 1); // hilt
+  R(c, "#8b4513", 12, 5, 1, 1); // grip
+  // Horse legs (galloping)
+  R(c, "#3a2a18", 4, 9, 2, 5);
+  R(c, "#3a2a18", 10, 9, 2, 4);
+  R(c, "#3a2a18", 9, 10, 1, 4);
+  // Hooves
+  R(c, "#1a1a1a", 4, 14, 2, 1);
+  R(c, "#1a1a1a", 9, 14, 2, 1);
+  // Flowing tail
+  R(c, "#1a1a1a", 12, 7, 2, 2);
+  R(c, "#111111", 13, 8, 1, 1);
 }
 
 function drawArabBishop(c) {
-  // Scholar/Imam
-  // Turban
+  // Islamic Scholar / Imam
+  // Grand turban
   R(c, "#ffffff", 5, 0, 6, 4);
-  R(c, "#e8e8e8", 6, 1, 4, 2);
-  R(c, "#228b22", 7, 0, 2, 1); // jewel
-  // Face with beard
-  R(c, "#c68642", 6, 4, 4, 3);
-  R(c, "#220000", 7, 4, 1, 1);
-  R(c, "#220000", 9, 4, 1, 1);
-  R(c, "#1a1a1a", 6, 6, 4, 1); // beard
-  R(c, "#1a1a1a", 7, 7, 2, 1);
-  // Robe (scholarly)
-  R(c, "#228b22", 5, 7, 6, 4);
-  R(c, "#1a6b1a", 6, 8, 4, 2);
-  // Book/scroll
-  R(c, "#8b4513", 11, 6, 2, 3);
-  R(c, "#f5f5dc", 11, 6, 2, 1);
+  R(c, "#eeeeee", 6, 0, 4, 3);
+  R(c, "#dddddd", 7, 1, 2, 1); // turban folds
+  R(c, "#ffffff", 5, 0, 1, 3); // wrap left
+  R(c, "#ffffff", 10, 0, 1, 3); // wrap right
+  // Emerald jewel on turban
+  R(c, "#00cc44", 7, 0, 2, 1);
+  R(c, "#00ff55", 8, 0, 1, 1); // glint
+  // Face
+  R(c, "#d4a06a", 6, 4, 4, 3);
+  R(c, "#111111", 7, 4, 1, 1); // eye
+  R(c, "#111111", 9, 4, 1, 1); // eye
+  // Long flowing beard
+  R(c, "#222222", 6, 6, 4, 2);
+  R(c, "#111111", 7, 6, 2, 2);
+  R(c, "#222222", 7, 8, 2, 1); // beard tip
+  // Green scholarly robe
+  R(c, "#228b22", 4, 7, 8, 4);
+  R(c, "#1a7a1a", 5, 8, 6, 2);
+  R(c, "#ffd700", 4, 7, 8, 1); // gold trim collar
+  R(c, "#ffd700", 4, 10, 8, 1); // gold trim hem
+  // Quran / Holy book
+  R(c, "#228b22", 12, 6, 2, 3);
+  R(c, "#ffd700", 12, 6, 2, 1); // gold pages
+  R(c, "#1a6b1a", 12, 7, 2, 1);
+  R(c, "#f0e6d0", 13, 7, 1, 1); // page edge
+  // Prayer beads in hand
+  R(c, "#8b6914", 3, 8, 1, 3);
+  R(c, "#ffd700", 3, 8, 1, 1);
+  R(c, "#ffd700", 3, 10, 1, 1);
   // Sandals
-  R(c, "#8b4513", 6, 11, 2, 3);
-  R(c, "#8b4513", 8, 11, 2, 3);
-  R(c, "#6b3410", 6, 14, 2, 1);
-  R(c, "#6b3410", 8, 14, 2, 1);
+  R(c, "#8b6914", 5, 11, 2, 3);
+  R(c, "#8b6914", 9, 11, 2, 3);
+  R(c, "#6b4410", 5, 14, 2, 1);
+  R(c, "#6b4410", 9, 14, 2, 1);
 }
 
 function drawArabQueen(c) {
-  // Desert Queen
-  // Crown/headdress
-  R(c, "#ffd700", 4, 0, 8, 3);
-  R(c, "#ff0000", 7, 0, 2, 1); // ruby
-  R(c, "#00ff00", 5, 1, 1, 1); // emerald
-  R(c, "#00ff00", 10, 1, 1, 1);
-  // Veil
-  R(c, "#800080", 4, 2, 8, 3);
-  R(c, "#6b006b", 5, 3, 6, 1);
-  // Eyes only visible
-  R(c, "#c68642", 6, 3, 4, 1);
-  R(c, "#220000", 7, 3, 1, 1);
-  R(c, "#220000", 9, 3, 1, 1);
-  // Royal robe
-  R(c, "#800080", 4, 5, 8, 6);
-  R(c, "#ffd700", 4, 5, 8, 1); // gold trim
-  R(c, "#ffd700", 4, 10, 8, 1);
-  R(c, "#6b006b", 5, 6, 6, 3);
-  // Daggers
-  R(c, "#c0c0c0", 3, 6, 1, 3);
-  R(c, "#c0c0c0", 12, 6, 1, 3);
-  R(c, "#ffd700", 3, 9, 1, 1);
-  R(c, "#ffd700", 12, 9, 1, 1);
-  // Feet
+  // Desert Queen / Warrior Princess
+  // Ornate golden crown headdress
+  R(c, "#ffd700", 4, 0, 8, 2);
+  R(c, "#ffaa00", 5, 0, 6, 1);
+  R(c, "#ff0000", 7, 0, 2, 1); // central ruby
+  R(c, "#00cc44", 5, 0, 1, 1); // emerald
+  R(c, "#00cc44", 10, 0, 1, 1); // emerald
+  R(c, "#ffd700", 4, 0, 1, 2); // crown points
+  R(c, "#ffd700", 11, 0, 1, 2);
+  // Purple silk veil
+  R(c, "#9933cc", 4, 2, 8, 3);
+  R(c, "#7722aa", 5, 3, 6, 1);
+  R(c, "#aa44dd", 4, 2, 1, 2); // veil drape
+  R(c, "#aa44dd", 11, 2, 1, 2);
+  // Fierce eyes visible through veil
+  R(c, "#d4a06a", 6, 3, 4, 1);
+  R(c, "#111111", 7, 3, 1, 1); // eye
+  R(c, "#111111", 9, 3, 1, 1); // eye
+  R(c, "#000000", 6, 3, 1, 1); // kohl liner
+  R(c, "#000000", 10, 3, 1, 1);
+  // Royal purple robe
+  R(c, "#9933cc", 4, 5, 8, 6);
+  R(c, "#7722aa", 5, 6, 6, 4);
+  // Gold ornamental trim
+  R(c, "#ffd700", 4, 5, 8, 1); // collar
+  R(c, "#ffd700", 4, 10, 8, 1); // hem
+  R(c, "#ffd700", 7, 6, 2, 3); // center embroidery
+  // Twin curved daggers
+  R(c, "#e0e0e0", 2, 5, 1, 4); // left blade
+  R(c, "#c0c0c0", 2, 5, 1, 1);
+  R(c, "#ffd700", 2, 9, 1, 1); // left hilt
+  R(c, "#e0e0e0", 13, 5, 1, 4); // right blade
+  R(c, "#c0c0c0", 13, 5, 1, 1);
+  R(c, "#ffd700", 13, 9, 1, 1); // right hilt
+  // Golden slippers
   R(c, "#ffd700", 5, 11, 2, 3);
   R(c, "#ffd700", 9, 11, 2, 3);
+  R(c, "#cc9900", 5, 14, 2, 1);
+  R(c, "#cc9900", 9, 14, 2, 1);
 }
 
 function drawArabKing(c) {
-  // Sultan/Sheikh
-  // Grand turban
+  // Grand Sultan / Sheikh
+  // Magnificent turban
   R(c, "#ffffff", 4, 0, 8, 4);
-  R(c, "#ffd700", 6, 0, 4, 1); // gold band
-  R(c, "#ff0000", 7, 1, 2, 1); // ruby
-  R(c, "#00bfff", 5, 2, 1, 1); // sapphire
-  R(c, "#00bfff", 10, 2, 1, 1);
+  R(c, "#eeeeee", 5, 0, 6, 3);
+  R(c, "#dddddd", 6, 1, 4, 1); // turban wraps
+  R(c, "#ffffff", 4, 0, 1, 3);
+  R(c, "#ffffff", 11, 0, 1, 3);
+  // Gold band on turban
+  R(c, "#ffd700", 5, 1, 6, 1);
+  // Giant ruby center
+  R(c, "#ff0000", 7, 0, 2, 1);
+  R(c, "#ff4444", 8, 0, 1, 1); // ruby glint
+  // Sapphires on sides
+  R(c, "#0088ff", 5, 0, 1, 1);
+  R(c, "#0088ff", 10, 0, 1, 1);
+  // Peacock feather
+  R(c, "#00aa44", 8, 0, 1, 1);
   // Face
-  R(c, "#c68642", 6, 4, 4, 3);
-  R(c, "#220000", 7, 4, 1, 1);
-  R(c, "#220000", 9, 4, 1, 1);
-  R(c, "#1a1a1a", 6, 6, 4, 1); // beard
-  R(c, "#1a1a1a", 7, 7, 2, 1);
-  // Royal robe
-  R(c, "#800020", 4, 7, 8, 4);
-  R(c, "#ffd700", 4, 7, 8, 1);
-  R(c, "#ffd700", 7, 8, 2, 2);
-  // Scepter
-  R(c, "#ffd700", 12, 3, 1, 8);
-  R(c, "#ffd700", 11, 3, 3, 1);
-  R(c, "#ff0000", 12, 2, 1, 1);
-  // Sandals
+  R(c, "#d4a06a", 6, 4, 4, 3);
+  R(c, "#111111", 7, 4, 1, 1); // eye
+  R(c, "#111111", 9, 4, 1, 1); // eye
+  // Royal beard
+  R(c, "#111111", 6, 6, 4, 1);
+  R(c, "#222222", 7, 7, 2, 1);
+  R(c, "#222222", 7, 8, 2, 1); // long beard
+  // Royal burgundy robe
+  R(c, "#880022", 4, 7, 8, 4);
+  R(c, "#660018", 5, 8, 6, 2);
+  // Gold embroidery
+  R(c, "#ffd700", 4, 7, 8, 1); // gold collar
+  R(c, "#ffd700", 7, 8, 2, 2); // central motif
+  R(c, "#ffd700", 4, 10, 8, 1); // gold hem
+  // Royal scepter
+  R(c, "#ffd700", 13, 2, 1, 9);
+  R(c, "#ffd700", 12, 2, 3, 1); // top bar
+  R(c, "#ff0000", 13, 1, 1, 1); // ruby top
+  R(c, "#ffd700", 12, 3, 1, 1); // ornament
+  R(c, "#ffd700", 14, 3, 1, 1);
+  // Golden slippers
   R(c, "#ffd700", 5, 11, 2, 3);
   R(c, "#ffd700", 9, 11, 2, 3);
   R(c, "#cc9900", 5, 14, 2, 1);
