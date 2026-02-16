@@ -3,6 +3,13 @@
 // British Soldiers (White) vs Monkeys (Black)
 // 16x16 Pixel Art | Ollama LLama 3.2 AI
 // ============================================================
+window.addEventListener('error', function(e) {
+  console.error('Global error:', e.message, e.filename, e.lineno);
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:10px;left:10px;right:10px;background:#cc0000;color:#fff;padding:10px;z-index:99999;font-family:monospace;font-size:12px;border-radius:4px;max-height:100px;overflow:auto;';
+  d.textContent = e.message + ' (' + (e.filename||'').split('/').pop() + ':' + e.lineno + ')';
+  document.body.appendChild(d);
+});
 (function () {
   "use strict";
 
@@ -29,8 +36,8 @@
 
   // === CANVAS ===
   const canvas = document.getElementById("chessBoard");
-  const ctx = canvas.getContext("2d");
-  ctx.imageSmoothingEnabled = false;
+  const ctx = canvas ? canvas.getContext("2d") : null;
+  if (ctx) ctx.imageSmoothingEnabled = false;
 
   // === GAME STATE ===
   let board,
@@ -1830,7 +1837,7 @@
   // ============================================================
   // INPUT HANDLING
   // ============================================================
-  canvas.addEventListener("click", (e) => {
+  if (canvas) canvas.addEventListener("click", (e) => {
     const playerColor = gameConfig.playerSide === 'white' ? W : B;
     if (gameOver || animState || currentPlayer !== playerColor || ramsayThinking) return;
 
@@ -1926,16 +1933,19 @@
   // ============================================================
   // RESET
   // ============================================================
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    // Clear used quotes for new game
-    usedQuotes = [];
-    lastPlayerMoveQuality = "neutral";
-    drawRamsayPortrait("neutral");
-    showRamsayComment(
-      "FINE! Let's go AGAIN! This time I'll absolutely DESTROY you, you pathetic banana-brained DONUT! COME ON!"
-    );
-    setTimeout(() => initGame(), 500);
-  });
+  const resetBtn = document.getElementById("resetBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      // Clear used quotes for new game
+      usedQuotes = [];
+      lastPlayerMoveQuality = "neutral";
+      drawRamsayPortrait("neutral");
+      showRamsayComment(
+        "FINE! Let's go AGAIN! This time I'll absolutely DESTROY you, you pathetic banana-brained DONUT! COME ON!"
+      );
+      setTimeout(() => initGame(), 500);
+    });
+  }
 
   // ============================================================
   // GAME LOOP
@@ -2256,5 +2266,29 @@
   // ============================================================
   // BOOT UP
   // ============================================================
-  initThemeSelector();
+  try {
+    initThemeSelector();
+    console.log('Theme selector initialized successfully');
+  } catch (e) {
+    console.error('Failed to initialize theme selector:', e);
+    // Show error on screen so user can see it
+    const overlay = document.getElementById('themeSelector');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:#ff0000;color:#fff;padding:12px;z-index:9999;font-family:monospace;font-size:14px;border-radius:4px;';
+      errDiv.textContent = 'JS Error: ' + e.message;
+      document.body.appendChild(errDiv);
+    }
+    // Fallback: try to attach minimal handlers
+    const startFallback = document.getElementById('startGameBtn');
+    if (startFallback) {
+      startFallback.addEventListener('click', () => {
+        if (overlay) overlay.style.display = 'none';
+        const gc = document.getElementById('gameContainer');
+        if (gc) gc.style.display = 'block';
+        try { startGameWithConfig(); } catch (e2) { console.error('Start failed:', e2); }
+      });
+    }
+  }
 })();
