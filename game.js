@@ -517,7 +517,8 @@
   // ============================================================
   // CREATE ALL SPRITES
   // ============================================================
-  // Local sprite function registry (includes british/monkeys from game.js + themes.js)
+  // All sprite functions registered here - british/monkeys are local IIFE functions,
+  // all others are global functions from themes.js (loaded before game.js)
   const LOCAL_SPRITE_FUNCTIONS = {
     british: {
       pawn: drawSoldierPawn,
@@ -534,11 +535,59 @@
       bishop: drawMonkeyBishop,
       queen: drawMonkeyQueen,
       king: drawMonkeyKing
+    },
+    classic_white: {
+      pawn: drawClassicWhitePawn,
+      rook: drawClassicWhiteRook,
+      knight: drawClassicWhiteKnight,
+      bishop: drawClassicWhiteBishop,
+      queen: drawClassicWhiteQueen,
+      king: drawClassicWhiteKing
+    },
+    classic_black: {
+      pawn: drawClassicBlackPawn,
+      rook: drawClassicBlackRook,
+      knight: drawClassicBlackKnight,
+      bishop: drawClassicBlackBishop,
+      queen: drawClassicBlackQueen,
+      king: drawClassicBlackKing
+    },
+    american: {
+      pawn: drawAmericanPawn,
+      rook: drawAmericanRook,
+      knight: drawAmericanKnight,
+      bishop: drawAmericanBishop,
+      queen: drawAmericanQueen,
+      king: drawAmericanKing
+    },
+    arab: {
+      pawn: drawArabPawn,
+      rook: drawArabRook,
+      knight: drawArabKnight,
+      bishop: drawArabBishop,
+      queen: drawArabQueen,
+      king: drawArabKing
+    },
+    ninja: {
+      pawn: drawNinjaPawn,
+      rook: drawNinjaRook,
+      knight: drawNinjaKnight,
+      bishop: drawNinjaBishop,
+      queen: drawNinjaQueen,
+      king: drawNinjaKing
+    },
+    knights: {
+      pawn: drawCrusaderPawn,
+      rook: drawCrusaderRook,
+      knight: drawCrusaderKnight,
+      bishop: drawCrusaderBishop,
+      queen: drawCrusaderQueen,
+      king: drawCrusaderKing
     }
   };
 
   function getSpriteFunctions(themeKey) {
-    return LOCAL_SPRITE_FUNCTIONS[themeKey] || (window.SPRITE_FUNCTIONS && window.SPRITE_FUNCTIONS[themeKey]) || null;
+    return LOCAL_SPRITE_FUNCTIONS[themeKey] || null;
   }
 
   function createAllSprites() {
