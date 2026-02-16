@@ -524,8 +524,9 @@ window.addEventListener('error', function(e) {
   // ============================================================
   // CREATE ALL SPRITES
   // ============================================================
-  // All sprite functions registered here - british/monkeys are local IIFE functions,
-  // all others are global functions from themes.js (loaded before game.js)
+  // british/monkeys are local IIFE functions (always available).
+  // All other themes are loaded from window.SPRITE_FUNCTIONS (set by themes.js)
+  // at RUNTIME to avoid ReferenceError if themes.js hasn't loaded yet.
   const LOCAL_SPRITE_FUNCTIONS = {
     british: {
       pawn: drawSoldierPawn,
@@ -542,59 +543,18 @@ window.addEventListener('error', function(e) {
       bishop: drawMonkeyBishop,
       queen: drawMonkeyQueen,
       king: drawMonkeyKing
-    },
-    classic_white: {
-      pawn: drawClassicWhitePawn,
-      rook: drawClassicWhiteRook,
-      knight: drawClassicWhiteKnight,
-      bishop: drawClassicWhiteBishop,
-      queen: drawClassicWhiteQueen,
-      king: drawClassicWhiteKing
-    },
-    classic_black: {
-      pawn: drawClassicBlackPawn,
-      rook: drawClassicBlackRook,
-      knight: drawClassicBlackKnight,
-      bishop: drawClassicBlackBishop,
-      queen: drawClassicBlackQueen,
-      king: drawClassicBlackKing
-    },
-    american: {
-      pawn: drawAmericanPawn,
-      rook: drawAmericanRook,
-      knight: drawAmericanKnight,
-      bishop: drawAmericanBishop,
-      queen: drawAmericanQueen,
-      king: drawAmericanKing
-    },
-    arab: {
-      pawn: drawArabPawn,
-      rook: drawArabRook,
-      knight: drawArabKnight,
-      bishop: drawArabBishop,
-      queen: drawArabQueen,
-      king: drawArabKing
-    },
-    ninja: {
-      pawn: drawNinjaPawn,
-      rook: drawNinjaRook,
-      knight: drawNinjaKnight,
-      bishop: drawNinjaBishop,
-      queen: drawNinjaQueen,
-      king: drawNinjaKing
-    },
-    knights: {
-      pawn: drawCrusaderPawn,
-      rook: drawCrusaderRook,
-      knight: drawCrusaderKnight,
-      bishop: drawCrusaderBishop,
-      queen: drawCrusaderQueen,
-      king: drawCrusaderKing
     }
   };
 
   function getSpriteFunctions(themeKey) {
-    return LOCAL_SPRITE_FUNCTIONS[themeKey] || null;
+    // Check local IIFE functions first (british, monkeys)
+    if (LOCAL_SPRITE_FUNCTIONS[themeKey]) return LOCAL_SPRITE_FUNCTIONS[themeKey];
+    // Check themes.js exports (classic_white, classic_black, american, arab, ninja, knights)
+    if (window.SPRITE_FUNCTIONS && window.SPRITE_FUNCTIONS[themeKey]) {
+      return window.SPRITE_FUNCTIONS[themeKey];
+    }
+    console.warn('Theme not found:', themeKey);
+    return null;
   }
 
   function createAllSprites() {
