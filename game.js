@@ -525,8 +525,9 @@ window.addEventListener('error', function(e) {
   // CREATE ALL SPRITES
   // ============================================================
   // british/monkeys are local IIFE functions (always available).
-  // All other themes are loaded from window.SPRITE_FUNCTIONS (set by themes.js)
-  // at RUNTIME to avoid ReferenceError if themes.js hasn't loaded yet.
+  // All other themes use window[fnName] lookup at runtime so we never
+  // get a ReferenceError even if themes.js globals aren't hoisted into
+  // the IIFE scope.
   const LOCAL_SPRITE_FUNCTIONS = {
     british: {
       pawn: drawSoldierPawn,
@@ -546,13 +547,41 @@ window.addEventListener('error', function(e) {
     }
   };
 
+  // Map of theme keys to their global function name prefixes in themes.js
+  const THEME_FN_NAMES = {
+    classic_white: 'ClassicWhite',
+    classic_black: 'ClassicBlack',
+    american: 'American',
+    arab: 'Arab',
+    ninja: 'Ninja',
+    knights: 'Crusader'
+  };
+
   function getSpriteFunctions(themeKey) {
     // Check local IIFE functions first (british, monkeys)
     if (LOCAL_SPRITE_FUNCTIONS[themeKey]) return LOCAL_SPRITE_FUNCTIONS[themeKey];
-    // Check themes.js exports (classic_white, classic_black, american, arab, ninja, knights)
-    if (window.SPRITE_FUNCTIONS && window.SPRITE_FUNCTIONS[themeKey]) {
-      return window.SPRITE_FUNCTIONS[themeKey];
+
+    // Look up themes.js functions by name from the window object
+    const prefix = THEME_FN_NAMES[themeKey];
+    if (prefix) {
+      const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
+      const fns = {};
+      let allFound = true;
+      for (const piece of pieces) {
+        const fnName = 'draw' + prefix + piece;
+        const fn = window[fnName];
+        if (typeof fn === 'function') {
+          fns[piece.toLowerCase()] = fn;
+        } else {
+          console.warn('Missing sprite function:', fnName);
+          allFound = false;
+        }
+      }
+      if (allFound) return fns;
+      // Even if some are missing, return what we have
+      if (Object.keys(fns).length > 0) return fns;
     }
+
     console.warn('Theme not found:', themeKey);
     return null;
   }

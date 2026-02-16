@@ -44,13 +44,14 @@ except ImportError:
 def serve_index():
     return send_from_directory('.', 'index.html')
 
-@app.route('/game.js')
-def serve_game_js():
-    return send_from_directory('.', 'game.js')
-
-@app.route('/styles.css')
-def serve_styles():
-    return send_from_directory('.', 'styles.css')
+@app.route('/<path:filename>')
+def serve_static(filename):
+    """Serve any static file (js, css, etc.) from the project directory"""
+    allowed_extensions = {'.js', '.css', '.html', '.png', '.jpg', '.ico', '.svg', '.woff', '.woff2'}
+    ext = os.path.splitext(filename)[1].lower()
+    if ext in allowed_extensions:
+        return send_from_directory('.', filename)
+    return 'Not found', 404
 
 # ============================================================
 # GORDON RAMSAY QUOTES API
