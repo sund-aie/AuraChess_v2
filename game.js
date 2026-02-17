@@ -103,10 +103,6 @@ window.addEventListener('error', function(e) {
     const c = document.createElement("canvas");
     c.width = c.height = sz;
     const x = c.getContext("2d");
-    if (sz !== SP) {
-      // Scale up the drawing so 16x16 pixel art fills the larger canvas
-      x.scale(sz / SP, sz / SP);
-    }
     fn(x);
     return c;
   }
@@ -557,7 +553,7 @@ window.addEventListener('error', function(e) {
     }
   };
 
-  // Map of theme keys to their global function name prefixes in themes.js
+  // Map of theme keys to their global function name prefixes in themes.js (16x16)
   const THEME_FN_NAMES = {
     classic_white: 'ClassicWhite',
     classic_black: 'ClassicBlack',
@@ -567,14 +563,46 @@ window.addEventListener('error', function(e) {
     knights: 'Crusader'
   };
 
+  // Map of ALL theme keys to their 32x32 global function name prefixes (sprites32.js)
+  const THEME_FN_NAMES_32 = {
+    british: 'Soldier32',
+    monkeys: 'Monkey32',
+    classic_white: 'ClassicWhite32',
+    classic_black: 'ClassicBlack32',
+    american: 'American32',
+    arab: 'Arab32',
+    ninja: 'Ninja32',
+    knights: 'Crusader32'
+  };
+
   function getSpriteFunctions(themeKey) {
-    // Check local IIFE functions first (british, monkeys)
+    const is32 = gameConfig.spriteSize === 32;
+    const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
+
+    // If 32x32 mode, try native 32x32 functions first
+    if (is32) {
+      const prefix32 = THEME_FN_NAMES_32[themeKey];
+      if (prefix32) {
+        const fns = {};
+        let allFound = true;
+        for (const piece of pieces) {
+          const fn = window['draw' + prefix32 + piece];
+          if (typeof fn === 'function') {
+            fns[piece.toLowerCase()] = fn;
+          } else {
+            allFound = false;
+          }
+        }
+        if (allFound) return fns;
+      }
+    }
+
+    // 16x16 mode (or fallback): check local IIFE functions (british, monkeys)
     if (LOCAL_SPRITE_FUNCTIONS[themeKey]) return LOCAL_SPRITE_FUNCTIONS[themeKey];
 
     // Look up themes.js functions by name from the window object
     const prefix = THEME_FN_NAMES[themeKey];
     if (prefix) {
-      const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
       const fns = {};
       let allFound = true;
       for (const piece of pieces) {
@@ -588,7 +616,6 @@ window.addEventListener('error', function(e) {
         }
       }
       if (allFound) return fns;
-      // Even if some are missing, return what we have
       if (Object.keys(fns).length > 0) return fns;
     }
 
@@ -620,7 +647,82 @@ window.addEventListener('error', function(e) {
   }
 
   // ============================================================
-  // GORDON RAMSAY PIXEL PORTRAIT
+  // GORDON RAMSAY PIXEL PORTRAIT (16x16 version)
+  // ============================================================
+  function drawRamsayPortrait16(rx, expression) {
+    const oc = document.createElement("canvas");
+    oc.width = oc.height = 16;
+    const ox = oc.getContext("2d");
+
+    const faceColors = {
+      neutral: "#ffcc99", furious: "#ff8866",
+      impressed: "#ffcc99", smug: "#ffcc99", worried: "#ffeebb"
+    };
+    const fc = faceColors[expression] || faceColors.neutral;
+
+    // Background
+    R(ox, "#2a1a0e", 0, 0, 16, 16);
+    // Chef hat
+    R(ox, "#ffffff", 4, 0, 8, 4);
+    R(ox, "#eeeeee", 5, 0, 6, 2);
+    R(ox, "#dddddd", 4, 3, 8, 1);
+    // Hair
+    R(ox, "#daa520", 4, 4, 1, 1);
+    R(ox, "#daa520", 11, 4, 1, 1);
+    // Face
+    R(ox, fc, 5, 4, 6, 5);
+    // Eyebrows
+    if (expression === "furious") {
+      R(ox, "#8B6914", 5, 5, 2, 1);
+      R(ox, "#8B6914", 9, 5, 2, 1);
+    } else {
+      R(ox, "#8B6914", 5, 5, 2, 1);
+      R(ox, "#8B6914", 9, 5, 2, 1);
+    }
+    // Eyes
+    if (expression === "furious") {
+      R(ox, "#ffffff", 5, 6, 2, 1);
+      R(ox, "#ffffff", 9, 6, 2, 1);
+      R(ox, "#cc2222", 6, 6, 1, 1);
+      R(ox, "#cc2222", 10, 6, 1, 1);
+    } else if (expression === "smug") {
+      R(ox, "#2244aa", 6, 6, 1, 1);
+      R(ox, "#2244aa", 10, 6, 1, 1);
+    } else {
+      R(ox, "#ffffff", 5, 6, 2, 1);
+      R(ox, "#ffffff", 9, 6, 2, 1);
+      R(ox, "#2244aa", 6, 6, 1, 1);
+      R(ox, "#2244aa", 10, 6, 1, 1);
+    }
+    // Nose
+    R(ox, "#eebb88", 7, 7, 2, 1);
+    // Mouth
+    if (expression === "furious") {
+      R(ox, "#cc0000", 6, 8, 4, 1);
+      R(ox, "#ffffff", 6, 8, 1, 1);
+      R(ox, "#ffffff", 9, 8, 1, 1);
+    } else if (expression === "smug") {
+      R(ox, "#cc4444", 6, 8, 4, 1);
+      R(ox, "#ffffff", 7, 8, 2, 1);
+    } else {
+      R(ox, "#cc6666", 6, 8, 4, 1);
+    }
+    // Wrinkles
+    R(ox, "#ddaa77", 4, 7, 1, 1);
+    R(ox, "#ddaa77", 11, 7, 1, 1);
+    // Chef jacket
+    R(ox, "#ffffff", 3, 10, 10, 6);
+    R(ox, "#eeeeee", 3, 10, 10, 1);
+    R(ox, "#dddddd", 7, 11, 1, 4);
+    // Buttons
+    R(ox, "#333333", 7, 12, 1, 1);
+    R(ox, "#333333", 7, 14, 1, 1);
+
+    rx.drawImage(oc, 0, 0, 128, 128);
+  }
+
+  // ============================================================
+  // GORDON RAMSAY PIXEL PORTRAIT (32x32 version)
   // ============================================================
   function drawRamsayPortrait(expression = "neutral") {
     // Expressions: "neutral", "furious", "impressed", "smug", "worried"
@@ -628,6 +730,13 @@ window.addEventListener('error', function(e) {
     if (!rc) return;
     const rx = rc.getContext("2d");
     rx.imageSmoothingEnabled = false;
+
+    // Use 16x16 mode if spriteSize is 16
+    if (gameConfig.spriteSize !== 32) {
+      drawRamsayPortrait16(rx, expression);
+      return;
+    }
+
     const oc = document.createElement("canvas");
     oc.width = oc.height = 32;
     const ox = oc.getContext("2d");
