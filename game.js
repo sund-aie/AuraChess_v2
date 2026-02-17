@@ -69,7 +69,8 @@ window.addEventListener('error', function(e) {
     boardColors: 'classic',
     killStyle: 'shooting',
     playerSide: 'black', // 'white' or 'black'
-    customBoard: null
+    customBoard: null,
+    spriteSize: 16 // 16 or 32
   };
 
   // Board color schemes
@@ -98,9 +99,14 @@ window.addEventListener('error', function(e) {
 
   // === SPRITE HELPERS ===
   function mkSprite(fn) {
+    const sz = gameConfig.spriteSize || SP;
     const c = document.createElement("canvas");
-    c.width = c.height = SP;
+    c.width = c.height = sz;
     const x = c.getContext("2d");
+    if (sz !== SP) {
+      // Scale up the drawing so 16x16 pixel art fills the larger canvas
+      x.scale(sz / SP, sz / SP);
+    }
     fn(x);
     return c;
   }
@@ -109,59 +115,9 @@ window.addEventListener('error', function(e) {
     c.fillRect(x, y, w || 1, h || 1);
   }
 
-  // === MOVE INDICATOR ARROWS (16x16 pixel art) ===
-  function drawMoveArrow(c) {
-    // Green downward arrow - "you can move here"
-    // Arrow head (wide triangle)
-    R(c, "#00ee44", 3, 8, 10, 1);
-    R(c, "#00ee44", 4, 9, 8, 1);
-    R(c, "#00ee44", 5, 10, 6, 1);
-    R(c, "#00ee44", 6, 11, 4, 1);
-    R(c, "#00ee44", 7, 12, 2, 1);
-    // Arrow shaft
-    R(c, "#00ee44", 6, 2, 4, 6);
-    // Bright highlights
-    R(c, "#44ff88", 7, 2, 2, 5);
-    R(c, "#44ff88", 5, 9, 6, 1);
-    R(c, "#44ff88", 6, 10, 4, 1);
-    // Dark edges for definition
-    R(c, "#009922", 6, 2, 1, 6);
-    R(c, "#009922", 9, 2, 1, 6);
-    R(c, "#009922", 3, 8, 1, 1);
-    R(c, "#009922", 12, 8, 1, 1);
-    R(c, "#009922", 7, 12, 2, 1);
-  }
-
-  function drawAttackArrow(c) {
-    // Red downward arrow - "you can capture here"
-    // Arrow head (wide triangle)
-    R(c, "#ff2222", 3, 8, 10, 1);
-    R(c, "#ff2222", 4, 9, 8, 1);
-    R(c, "#ff2222", 5, 10, 6, 1);
-    R(c, "#ff2222", 6, 11, 4, 1);
-    R(c, "#ff2222", 7, 12, 2, 1);
-    // Arrow shaft
-    R(c, "#ff2222", 6, 2, 4, 6);
-    // Bright highlights
-    R(c, "#ff6666", 7, 2, 2, 5);
-    R(c, "#ff6666", 5, 9, 6, 1);
-    R(c, "#ff6666", 6, 10, 4, 1);
-    // Dark edges for definition
-    R(c, "#aa0000", 6, 2, 1, 6);
-    R(c, "#aa0000", 9, 2, 1, 6);
-    R(c, "#aa0000", 3, 8, 1, 1);
-    R(c, "#aa0000", 12, 8, 1, 1);
-    R(c, "#aa0000", 7, 12, 2, 1);
-    // Skull crossbones hint (tiny X on shaft)
-    R(c, "#ffcc00", 7, 4, 1, 1);
-    R(c, "#ffcc00", 8, 4, 1, 1);
-    R(c, "#ffcc00", 7, 5, 1, 1);
-    R(c, "#ffcc00", 8, 5, 1, 1);
-  }
-
-  // Pre-render arrow sprites
-  const moveArrowSprite = mkSprite(drawMoveArrow);
-  const attackArrowSprite = mkSprite(drawAttackArrow);
+  // === MOVE INDICATOR COLORS ===
+  const MOVE_HIGHLIGHT = "rgba(0, 238, 68, 0.4)";   // green tint for valid moves
+  const ATTACK_HIGHLIGHT = "rgba(255, 34, 34, 0.4)"; // red tint for captures
 
   // ============================================================
   // 16x16 PIXEL ART SPRITES - BRITISH SOLDIERS (WHITE)
@@ -887,18 +843,16 @@ window.addEventListener('error', function(e) {
       }
     }
 
-    // Highlights and move arrows
+    // Highlights for selected piece and valid moves
     if (selected && !animState) {
       // Highlight selected piece square with subtle glow
       ctx.fillStyle = "rgba(255, 255, 0, 0.35)";
       ctx.fillRect(selected.col * SQ, selected.row * SQ, SQ, SQ);
 
-      // Draw pixel art arrows on valid move squares
-      ctx.imageSmoothingEnabled = false;
+      // Color valid move squares
       for (const m of validMoves) {
-        const arrow = board[m.row][m.col] ? attackArrowSprite : moveArrowSprite;
-        // Draw arrow centered in square
-        ctx.drawImage(arrow, m.col * SQ + 16, m.row * SQ + 16, SQ - 32, SQ - 32);
+        ctx.fillStyle = board[m.row][m.col] ? ATTACK_HIGHLIGHT : MOVE_HIGHLIGHT;
+        ctx.fillRect(m.col * SQ, m.row * SQ, SQ, SQ);
       }
     }
 
@@ -2144,6 +2098,15 @@ window.addEventListener('error', function(e) {
         document.querySelectorAll('.kill-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         gameConfig.killStyle = btn.dataset.kill;
+      });
+    });
+
+    // Texture size buttons
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameConfig.spriteSize = parseInt(btn.dataset.size, 10);
       });
     });
 
