@@ -69,7 +69,8 @@ window.addEventListener('error', function(e) {
     boardColors: 'classic',
     killStyle: 'shooting',
     playerSide: 'black', // 'white' or 'black'
-    customBoard: null
+    customBoard: null,
+    spriteSize: 16 // 16 or 32
   };
 
   // Board color schemes
@@ -98,8 +99,9 @@ window.addEventListener('error', function(e) {
 
   // === SPRITE HELPERS ===
   function mkSprite(fn) {
+    const sz = gameConfig.spriteSize || SP;
     const c = document.createElement("canvas");
-    c.width = c.height = SP;
+    c.width = c.height = sz;
     const x = c.getContext("2d");
     fn(x);
     return c;
@@ -109,59 +111,9 @@ window.addEventListener('error', function(e) {
     c.fillRect(x, y, w || 1, h || 1);
   }
 
-  // === MOVE INDICATOR ARROWS (16x16 pixel art) ===
-  function drawMoveArrow(c) {
-    // Green downward arrow - "you can move here"
-    // Arrow head (wide triangle)
-    R(c, "#00ee44", 3, 8, 10, 1);
-    R(c, "#00ee44", 4, 9, 8, 1);
-    R(c, "#00ee44", 5, 10, 6, 1);
-    R(c, "#00ee44", 6, 11, 4, 1);
-    R(c, "#00ee44", 7, 12, 2, 1);
-    // Arrow shaft
-    R(c, "#00ee44", 6, 2, 4, 6);
-    // Bright highlights
-    R(c, "#44ff88", 7, 2, 2, 5);
-    R(c, "#44ff88", 5, 9, 6, 1);
-    R(c, "#44ff88", 6, 10, 4, 1);
-    // Dark edges for definition
-    R(c, "#009922", 6, 2, 1, 6);
-    R(c, "#009922", 9, 2, 1, 6);
-    R(c, "#009922", 3, 8, 1, 1);
-    R(c, "#009922", 12, 8, 1, 1);
-    R(c, "#009922", 7, 12, 2, 1);
-  }
-
-  function drawAttackArrow(c) {
-    // Red downward arrow - "you can capture here"
-    // Arrow head (wide triangle)
-    R(c, "#ff2222", 3, 8, 10, 1);
-    R(c, "#ff2222", 4, 9, 8, 1);
-    R(c, "#ff2222", 5, 10, 6, 1);
-    R(c, "#ff2222", 6, 11, 4, 1);
-    R(c, "#ff2222", 7, 12, 2, 1);
-    // Arrow shaft
-    R(c, "#ff2222", 6, 2, 4, 6);
-    // Bright highlights
-    R(c, "#ff6666", 7, 2, 2, 5);
-    R(c, "#ff6666", 5, 9, 6, 1);
-    R(c, "#ff6666", 6, 10, 4, 1);
-    // Dark edges for definition
-    R(c, "#aa0000", 6, 2, 1, 6);
-    R(c, "#aa0000", 9, 2, 1, 6);
-    R(c, "#aa0000", 3, 8, 1, 1);
-    R(c, "#aa0000", 12, 8, 1, 1);
-    R(c, "#aa0000", 7, 12, 2, 1);
-    // Skull crossbones hint (tiny X on shaft)
-    R(c, "#ffcc00", 7, 4, 1, 1);
-    R(c, "#ffcc00", 8, 4, 1, 1);
-    R(c, "#ffcc00", 7, 5, 1, 1);
-    R(c, "#ffcc00", 8, 5, 1, 1);
-  }
-
-  // Pre-render arrow sprites
-  const moveArrowSprite = mkSprite(drawMoveArrow);
-  const attackArrowSprite = mkSprite(drawAttackArrow);
+  // === MOVE INDICATOR COLORS ===
+  const MOVE_HIGHLIGHT = "rgba(0, 238, 68, 0.4)";   // green tint for valid moves
+  const ATTACK_HIGHLIGHT = "rgba(255, 34, 34, 0.4)"; // red tint for captures
 
   // ============================================================
   // 16x16 PIXEL ART SPRITES - BRITISH SOLDIERS (WHITE)
@@ -601,7 +553,7 @@ window.addEventListener('error', function(e) {
     }
   };
 
-  // Map of theme keys to their global function name prefixes in themes.js
+  // Map of theme keys to their global function name prefixes in themes.js (16x16)
   const THEME_FN_NAMES = {
     classic_white: 'ClassicWhite',
     classic_black: 'ClassicBlack',
@@ -611,14 +563,46 @@ window.addEventListener('error', function(e) {
     knights: 'Crusader'
   };
 
+  // Map of ALL theme keys to their 32x32 global function name prefixes (sprites32.js)
+  const THEME_FN_NAMES_32 = {
+    british: 'Soldier32',
+    monkeys: 'Monkey32',
+    classic_white: 'ClassicWhite32',
+    classic_black: 'ClassicBlack32',
+    american: 'American32',
+    arab: 'Arab32',
+    ninja: 'Ninja32',
+    knights: 'Crusader32'
+  };
+
   function getSpriteFunctions(themeKey) {
-    // Check local IIFE functions first (british, monkeys)
+    const is32 = gameConfig.spriteSize === 32;
+    const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
+
+    // If 32x32 mode, try native 32x32 functions first
+    if (is32) {
+      const prefix32 = THEME_FN_NAMES_32[themeKey];
+      if (prefix32) {
+        const fns = {};
+        let allFound = true;
+        for (const piece of pieces) {
+          const fn = window['draw' + prefix32 + piece];
+          if (typeof fn === 'function') {
+            fns[piece.toLowerCase()] = fn;
+          } else {
+            allFound = false;
+          }
+        }
+        if (allFound) return fns;
+      }
+    }
+
+    // 16x16 mode (or fallback): check local IIFE functions (british, monkeys)
     if (LOCAL_SPRITE_FUNCTIONS[themeKey]) return LOCAL_SPRITE_FUNCTIONS[themeKey];
 
     // Look up themes.js functions by name from the window object
     const prefix = THEME_FN_NAMES[themeKey];
     if (prefix) {
-      const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
       const fns = {};
       let allFound = true;
       for (const piece of pieces) {
@@ -632,7 +616,6 @@ window.addEventListener('error', function(e) {
         }
       }
       if (allFound) return fns;
-      // Even if some are missing, return what we have
       if (Object.keys(fns).length > 0) return fns;
     }
 
@@ -664,7 +647,82 @@ window.addEventListener('error', function(e) {
   }
 
   // ============================================================
-  // GORDON RAMSAY PIXEL PORTRAIT
+  // GORDON RAMSAY PIXEL PORTRAIT (16x16 version)
+  // ============================================================
+  function drawRamsayPortrait16(rx, expression) {
+    const oc = document.createElement("canvas");
+    oc.width = oc.height = 16;
+    const ox = oc.getContext("2d");
+
+    const faceColors = {
+      neutral: "#ffcc99", furious: "#ff8866",
+      impressed: "#ffcc99", smug: "#ffcc99", worried: "#ffeebb"
+    };
+    const fc = faceColors[expression] || faceColors.neutral;
+
+    // Background
+    R(ox, "#2a1a0e", 0, 0, 16, 16);
+    // Chef hat
+    R(ox, "#ffffff", 4, 0, 8, 4);
+    R(ox, "#eeeeee", 5, 0, 6, 2);
+    R(ox, "#dddddd", 4, 3, 8, 1);
+    // Hair
+    R(ox, "#daa520", 4, 4, 1, 1);
+    R(ox, "#daa520", 11, 4, 1, 1);
+    // Face
+    R(ox, fc, 5, 4, 6, 5);
+    // Eyebrows
+    if (expression === "furious") {
+      R(ox, "#8B6914", 5, 5, 2, 1);
+      R(ox, "#8B6914", 9, 5, 2, 1);
+    } else {
+      R(ox, "#8B6914", 5, 5, 2, 1);
+      R(ox, "#8B6914", 9, 5, 2, 1);
+    }
+    // Eyes
+    if (expression === "furious") {
+      R(ox, "#ffffff", 5, 6, 2, 1);
+      R(ox, "#ffffff", 9, 6, 2, 1);
+      R(ox, "#cc2222", 6, 6, 1, 1);
+      R(ox, "#cc2222", 10, 6, 1, 1);
+    } else if (expression === "smug") {
+      R(ox, "#2244aa", 6, 6, 1, 1);
+      R(ox, "#2244aa", 10, 6, 1, 1);
+    } else {
+      R(ox, "#ffffff", 5, 6, 2, 1);
+      R(ox, "#ffffff", 9, 6, 2, 1);
+      R(ox, "#2244aa", 6, 6, 1, 1);
+      R(ox, "#2244aa", 10, 6, 1, 1);
+    }
+    // Nose
+    R(ox, "#eebb88", 7, 7, 2, 1);
+    // Mouth
+    if (expression === "furious") {
+      R(ox, "#cc0000", 6, 8, 4, 1);
+      R(ox, "#ffffff", 6, 8, 1, 1);
+      R(ox, "#ffffff", 9, 8, 1, 1);
+    } else if (expression === "smug") {
+      R(ox, "#cc4444", 6, 8, 4, 1);
+      R(ox, "#ffffff", 7, 8, 2, 1);
+    } else {
+      R(ox, "#cc6666", 6, 8, 4, 1);
+    }
+    // Wrinkles
+    R(ox, "#ddaa77", 4, 7, 1, 1);
+    R(ox, "#ddaa77", 11, 7, 1, 1);
+    // Chef jacket
+    R(ox, "#ffffff", 3, 10, 10, 6);
+    R(ox, "#eeeeee", 3, 10, 10, 1);
+    R(ox, "#dddddd", 7, 11, 1, 4);
+    // Buttons
+    R(ox, "#333333", 7, 12, 1, 1);
+    R(ox, "#333333", 7, 14, 1, 1);
+
+    rx.drawImage(oc, 0, 0, 128, 128);
+  }
+
+  // ============================================================
+  // GORDON RAMSAY PIXEL PORTRAIT (32x32 version)
   // ============================================================
   function drawRamsayPortrait(expression = "neutral") {
     // Expressions: "neutral", "furious", "impressed", "smug", "worried"
@@ -672,6 +730,13 @@ window.addEventListener('error', function(e) {
     if (!rc) return;
     const rx = rc.getContext("2d");
     rx.imageSmoothingEnabled = false;
+
+    // Use 16x16 mode if spriteSize is 16
+    if (gameConfig.spriteSize !== 32) {
+      drawRamsayPortrait16(rx, expression);
+      return;
+    }
+
     const oc = document.createElement("canvas");
     oc.width = oc.height = 32;
     const ox = oc.getContext("2d");
@@ -887,18 +952,16 @@ window.addEventListener('error', function(e) {
       }
     }
 
-    // Highlights and move arrows
+    // Highlights for selected piece and valid moves
     if (selected && !animState) {
       // Highlight selected piece square with subtle glow
       ctx.fillStyle = "rgba(255, 255, 0, 0.35)";
       ctx.fillRect(selected.col * SQ, selected.row * SQ, SQ, SQ);
 
-      // Draw pixel art arrows on valid move squares
-      ctx.imageSmoothingEnabled = false;
+      // Color valid move squares
       for (const m of validMoves) {
-        const arrow = board[m.row][m.col] ? attackArrowSprite : moveArrowSprite;
-        // Draw arrow centered in square
-        ctx.drawImage(arrow, m.col * SQ + 16, m.row * SQ + 16, SQ - 32, SQ - 32);
+        ctx.fillStyle = board[m.row][m.col] ? ATTACK_HIGHLIGHT : MOVE_HIGHLIGHT;
+        ctx.fillRect(m.col * SQ, m.row * SQ, SQ, SQ);
       }
     }
 
@@ -2144,6 +2207,15 @@ window.addEventListener('error', function(e) {
         document.querySelectorAll('.kill-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         gameConfig.killStyle = btn.dataset.kill;
+      });
+    });
+
+    // Texture size buttons
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameConfig.spriteSize = parseInt(btn.dataset.size, 10);
       });
     });
 

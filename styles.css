@@ -617,6 +617,50 @@ h1 {
     color: #8a7a5a;
 }
 
+/* Texture Size Selection */
+.size-selection {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.size-btn {
+    flex: 1;
+    max-width: 200px;
+    padding: 16px 20px;
+    background: linear-gradient(180deg, #2a2a1e 0%, #1a1a10 100%);
+    border: 2px solid #3a3a2a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.size-btn:hover {
+    border-color: #5a5a4a;
+}
+
+.size-btn.selected {
+    border-color: #44aacc;
+    background: linear-gradient(180deg, #1a2a3a 0%, #101a2a 100%);
+    box-shadow: 0 0 15px rgba(68,170,204,0.3);
+}
+
+.size-icon {
+    display: block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7em;
+    color: #44aacc;
+    margin-bottom: 4px;
+}
+
+.size-desc {
+    display: block;
+    font-family: 'VT323', monospace;
+    font-size: 1em;
+    color: #8a7a5a;
+}
+
 /* Designer Section */
 .designer-section {
     text-align: center;
@@ -810,12 +854,12 @@ h1 {
 }
 
 @media (max-width: 500px) {
-    .side-selection, .kill-selection {
+    .side-selection, .kill-selection, .size-selection {
         flex-direction: column;
         align-items: center;
     }
 
-    .side-btn, .kill-btn {
+    .side-btn, .kill-btn, .size-btn {
         max-width: 100%;
         width: 100%;
     }
