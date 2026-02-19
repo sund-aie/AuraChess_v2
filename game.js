@@ -2294,12 +2294,12 @@ window.addEventListener('error', function(e) {
     if (startBtn) {
       startBtn.addEventListener('click', async () => {
         // Check Ollama status before allowing game start
-        startBtn.textContent = 'Checking AI...';
+        startBtn.textContent = 'CHECKING AI...';
         startBtn.disabled = true;
 
         const isReady = await checkServerStatus();
         if (!isReady) {
-          startBtn.textContent = 'START BATTLE!';
+          startBtn.textContent = 'COMMENCE BATTLE';
           startBtn.disabled = false;
           alert(
             'GAME CANNOT START!\n\n' +
@@ -2314,7 +2314,7 @@ window.addEventListener('error', function(e) {
           return;
         }
 
-        startBtn.textContent = 'START BATTLE!';
+        startBtn.textContent = 'COMMENCE BATTLE';
         startBtn.disabled = false;
         themeSelector.style.display = 'none';
         gameContainer.style.display = 'block';
@@ -2357,8 +2357,8 @@ window.addEventListener('error', function(e) {
         tempCtx.fillRect(4, 4, 8, 8);
       }
 
-      // Scale to preview canvas
-      ctx.drawImage(temp, 0, 0, 48, 48);
+      // Scale to preview canvas (64x64 for new dossier cards)
+      ctx.drawImage(temp, 0, 0, canvas.width, canvas.height);
     });
   }
 

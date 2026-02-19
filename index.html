@@ -8,195 +8,216 @@
 </head>
 <body>
     <!-- Theme Selector Overlay -->
-    <div id="themeSelector" class="theme-overlay">
-        <div class="theme-modal">
-            <h1>CHESS BATTLEFIELD</h1>
-            <h2>Choose Your Battle</h2>
+    <div id="themeSelector" class="war-room-overlay">
+        <div class="tacticians-dossier">
+            <div class="dossier-header">
+                <h1 class="title-pixel">AURA BATTLEFIELD</h1>
+                <h2 class="subtitle-pixel">Select Your Faction</h2>
+            </div>
 
-            <!-- Side Selection -->
-            <div class="theme-section">
-                <h3>Play As</h3>
-                <div class="side-selection">
-                    <button class="side-btn selected" data-side="black">
-                        <span class="side-icon">BLACK</span>
-                        <span class="side-desc">You move second</span>
-                    </button>
-                    <button class="side-btn" data-side="white">
-                        <span class="side-icon">WHITE</span>
-                        <span class="side-desc">You move first</span>
-                    </button>
+            <div class="dossier-body">
+                <!-- Side Selection -->
+                <div class="tactical-section">
+                    <h3 class="section-title">Initiative (Play As)</h3>
+                    <div class="initiative-grid">
+                        <button class="pixel-btn side-btn selected" data-side="black">
+                            <span class="btn-title">PHANTOM (BLACK)</span>
+                            <span class="btn-desc">Counter-Offensive</span>
+                        </button>
+                        <button class="pixel-btn side-btn" data-side="white">
+                            <span class="btn-title">VANGUARD (WHITE)</span>
+                            <span class="btn-desc">First Strike Advantage</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- White Pieces -->
+                <div class="tactical-section">
+                    <h3 class="section-title">White Army Regiment</h3>
+                    <div class="faction-grid" id="whitePieces">
+                        <div class="pixel-card piece-card selected" data-theme="british">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Royal Redcoats</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="american">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">US Marines</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="classic_white">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Classic White</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="knights">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Crusaders</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Black Pieces -->
+                <div class="tactical-section">
+                    <h3 class="section-title">Black Army Regiment</h3>
+                    <div class="faction-grid" id="blackPieces">
+                        <div class="pixel-card piece-card selected" data-theme="monkeys">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Jungle Monkeys</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="arab">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Desert Warriors</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="classic_black">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Classic Black</span>
+                        </div>
+                        <div class="pixel-card piece-card" data-theme="ninja">
+                            <div class="card-art-box">
+                                <canvas class="piece-preview" width="64" height="64"></canvas>
+                            </div>
+                            <span class="card-label">Shadow Ninjas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Board Colors -->
+                <div class="tactical-section">
+                    <h3 class="section-title">Terrain Selection</h3>
+                    <div class="terrain-grid" id="boardColors">
+                        <div class="pixel-card board-card selected" data-board="classic">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#f0d9b5"></div>
+                                <div class="board-square" style="background:#b58863"></div>
+                                <div class="board-square" style="background:#b58863"></div>
+                                <div class="board-square" style="background:#f0d9b5"></div>
+                            </div>
+                            <span class="card-label">Classic</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="military">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#5a6d33"></div>
+                                <div class="board-square" style="background:#3d4a23"></div>
+                                <div class="board-square" style="background:#3d4a23"></div>
+                                <div class="board-square" style="background:#5a6d33"></div>
+                            </div>
+                            <span class="card-label">Military</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="ocean">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#a8d8ea"></div>
+                                <div class="board-square" style="background:#3d5a80"></div>
+                                <div class="board-square" style="background:#3d5a80"></div>
+                                <div class="board-square" style="background:#a8d8ea"></div>
+                            </div>
+                            <span class="card-label">Ocean</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="volcanic">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#ff6b6b"></div>
+                                <div class="board-square" style="background:#2d2d2d"></div>
+                                <div class="board-square" style="background:#2d2d2d"></div>
+                                <div class="board-square" style="background:#ff6b6b"></div>
+                            </div>
+                            <span class="card-label">Volcanic</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="royal">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#e8d5f7"></div>
+                                <div class="board-square" style="background:#6b4499"></div>
+                                <div class="board-square" style="background:#6b4499"></div>
+                                <div class="board-square" style="background:#e8d5f7"></div>
+                            </div>
+                            <span class="card-label">Royal</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="desert">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#f5deb3"></div>
+                                <div class="board-square" style="background:#d2a679"></div>
+                                <div class="board-square" style="background:#d2a679"></div>
+                                <div class="board-square" style="background:#f5deb3"></div>
+                            </div>
+                            <span class="card-label">Desert</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="forest">
+                            <div class="board-preview">
+                                <div class="board-square" style="background:#a8d5a2"></div>
+                                <div class="board-square" style="background:#4a7c47"></div>
+                                <div class="board-square" style="background:#4a7c47"></div>
+                                <div class="board-square" style="background:#a8d5a2"></div>
+                            </div>
+                            <span class="card-label">Forest</span>
+                        </div>
+                        <div class="pixel-card board-card" data-board="custom" id="customBoardCard">
+                            <div class="board-preview" id="customBoardPreview">
+                                <div class="board-square" style="background:#ffffff"></div>
+                                <div class="board-square" style="background:#888888"></div>
+                                <div class="board-square" style="background:#888888"></div>
+                                <div class="board-square" style="background:#ffffff"></div>
+                            </div>
+                            <span class="card-label">Custom</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kill Animation -->
+                <div class="tactical-section">
+                    <h3 class="section-title">Elimination Protocol</h3>
+                    <div class="initiative-grid">
+                        <button class="pixel-btn kill-btn selected" data-kill="shooting">
+                            <span class="btn-title">SHOOTING</span>
+                            <span class="btn-desc">Guns blazing</span>
+                        </button>
+                        <button class="pixel-btn kill-btn" data-kill="stabbing">
+                            <span class="btn-title">STABBING</span>
+                            <span class="btn-desc">Close combat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Texture Size -->
+                <div class="tactical-section">
+                    <h3 class="section-title">Recon Resolution</h3>
+                    <div class="initiative-grid">
+                        <button class="pixel-btn size-btn selected" data-size="16">
+                            <span class="btn-title">16x16</span>
+                            <span class="btn-desc">Classic pixel art</span>
+                        </button>
+                        <button class="pixel-btn size-btn" data-size="32">
+                            <span class="btn-title">32x32</span>
+                            <span class="btn-desc">Higher detail</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Designer Button -->
+                <div class="tactical-section" style="text-align:center">
+                    <button id="designerBtn" class="pixel-btn designer-btn">Custom Board Designer</button>
                 </div>
             </div>
 
-            <!-- White Pieces -->
-            <div class="theme-section">
-                <h3>White Pieces (AI opponent or You)</h3>
-                <div class="piece-grid" id="whitePieces">
-                    <div class="piece-card selected" data-theme="british">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>British Soldiers</span>
-                    </div>
-                    <div class="piece-card" data-theme="american">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>US Marines</span>
-                    </div>
-                    <div class="piece-card" data-theme="classic_white">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Classic White</span>
-                    </div>
-                    <div class="piece-card" data-theme="knights">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Crusaders</span>
-                    </div>
-                </div>
+            <div class="dossier-footer">
+                <button id="startGameBtn" class="pixel-btn action-btn">COMMENCE BATTLE</button>
             </div>
-
-            <!-- Black Pieces -->
-            <div class="theme-section">
-                <h3>Black Pieces (You or AI opponent)</h3>
-                <div class="piece-grid" id="blackPieces">
-                    <div class="piece-card selected" data-theme="monkeys">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Jungle Monkeys</span>
-                    </div>
-                    <div class="piece-card" data-theme="arab">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Desert Warriors</span>
-                    </div>
-                    <div class="piece-card" data-theme="classic_black">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Classic Black</span>
-                    </div>
-                    <div class="piece-card" data-theme="ninja">
-                        <canvas class="piece-preview" width="48" height="48"></canvas>
-                        <span>Shadow Ninjas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Board Colors -->
-            <div class="theme-section">
-                <h3>Board Colors</h3>
-                <div class="board-grid" id="boardColors">
-                    <div class="board-card selected" data-board="classic">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#f0d9b5"></div>
-                            <div class="board-square dark" style="background:#b58863"></div>
-                            <div class="board-square dark" style="background:#b58863"></div>
-                            <div class="board-square light" style="background:#f0d9b5"></div>
-                        </div>
-                        <span>Classic</span>
-                    </div>
-                    <div class="board-card" data-board="military">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#5a6d33"></div>
-                            <div class="board-square dark" style="background:#3d4a23"></div>
-                            <div class="board-square dark" style="background:#3d4a23"></div>
-                            <div class="board-square light" style="background:#5a6d33"></div>
-                        </div>
-                        <span>Military</span>
-                    </div>
-                    <div class="board-card" data-board="ocean">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#a8d8ea"></div>
-                            <div class="board-square dark" style="background:#3d5a80"></div>
-                            <div class="board-square dark" style="background:#3d5a80"></div>
-                            <div class="board-square light" style="background:#a8d8ea"></div>
-                        </div>
-                        <span>Ocean</span>
-                    </div>
-                    <div class="board-card" data-board="volcanic">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#ff6b6b"></div>
-                            <div class="board-square dark" style="background:#2d2d2d"></div>
-                            <div class="board-square dark" style="background:#2d2d2d"></div>
-                            <div class="board-square light" style="background:#ff6b6b"></div>
-                        </div>
-                        <span>Volcanic</span>
-                    </div>
-                    <div class="board-card" data-board="royal">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#e8d5f7"></div>
-                            <div class="board-square dark" style="background:#6b4499"></div>
-                            <div class="board-square dark" style="background:#6b4499"></div>
-                            <div class="board-square light" style="background:#e8d5f7"></div>
-                        </div>
-                        <span>Royal</span>
-                    </div>
-                    <div class="board-card" data-board="desert">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#f5deb3"></div>
-                            <div class="board-square dark" style="background:#d2a679"></div>
-                            <div class="board-square dark" style="background:#d2a679"></div>
-                            <div class="board-square light" style="background:#f5deb3"></div>
-                        </div>
-                        <span>Desert</span>
-                    </div>
-                    <div class="board-card" data-board="forest">
-                        <div class="board-preview">
-                            <div class="board-square light" style="background:#a8d5a2"></div>
-                            <div class="board-square dark" style="background:#4a7c47"></div>
-                            <div class="board-square dark" style="background:#4a7c47"></div>
-                            <div class="board-square light" style="background:#a8d5a2"></div>
-                        </div>
-                        <span>Forest</span>
-                    </div>
-                    <div class="board-card" data-board="custom" id="customBoardCard">
-                        <div class="board-preview" id="customBoardPreview">
-                            <div class="board-square light" style="background:#ffffff"></div>
-                            <div class="board-square dark" style="background:#888888"></div>
-                            <div class="board-square dark" style="background:#888888"></div>
-                            <div class="board-square light" style="background:#ffffff"></div>
-                        </div>
-                        <span>Custom</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kill Animation -->
-            <div class="theme-section">
-                <h3>Kill Animation</h3>
-                <div class="kill-selection">
-                    <button class="kill-btn selected" data-kill="shooting">
-                        <span class="kill-icon">SHOOTING</span>
-                        <span class="kill-desc">Guns blazing</span>
-                    </button>
-                    <button class="kill-btn" data-kill="stabbing">
-                        <span class="kill-icon">STABBING</span>
-                        <span class="kill-desc">Close combat</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Texture Size -->
-            <div class="theme-section">
-                <h3>Texture Size</h3>
-                <div class="size-selection">
-                    <button class="size-btn selected" data-size="16">
-                        <span class="size-icon">16x16</span>
-                        <span class="size-desc">Classic pixel art</span>
-                    </button>
-                    <button class="size-btn" data-size="32">
-                        <span class="size-icon">32x32</span>
-                        <span class="size-desc">Higher detail</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Designer Button -->
-            <div class="theme-section designer-section">
-                <button id="designerBtn" class="designer-btn">Custom Board Designer</button>
-            </div>
-
-            <!-- Start Button -->
-            <button id="startGameBtn" class="start-btn">START BATTLE!</button>
         </div>
     </div>
 
     <!-- Designer Modal -->
-    <div id="designerModal" class="designer-overlay" style="display:none">
+    <div id="designerModal" class="war-room-overlay" style="display:none">
         <div class="designer-panel">
-            <h2>Custom Board Designer</h2>
+            <h2 class="section-title" style="text-align:center;font-size:0.9rem;margin-bottom:20px">Terrain Designer</h2>
             <div class="color-pickers">
                 <div class="color-picker">
                     <label>Light Squares</label>
@@ -211,8 +232,8 @@
                 <div class="preview-board" id="designerPreviewBoard"></div>
             </div>
             <div class="designer-buttons">
-                <button id="saveDesignBtn">Save & Use</button>
-                <button id="cancelDesignBtn">Cancel</button>
+                <button id="saveDesignBtn" class="pixel-btn">Save & Use</button>
+                <button id="cancelDesignBtn" class="pixel-btn">Cancel</button>
             </div>
         </div>
     </div>
