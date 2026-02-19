@@ -104,6 +104,62 @@ class AILearning:
 
         return adaptations
 
+    def generate_game_summary(self, game: dict) -> str:
+        """Generate a text summary of a single game for LLM context"""
+        moves = game.get('moves', [])
+        winner = game.get('winner', 'unknown')
+        total_moves = len(moves)
+
+        player_captures = game.get('capturedByPlayer', [])
+        ai_captures = game.get('capturedByAI', [])
+
+        # Count by piece type
+        player_cap_str = ", ".join(f"{p}" for p in player_captures) if player_captures else "none"
+        ai_cap_str = ", ".join(f"{p}" for p in ai_captures) if ai_captures else "none"
+
+        # Determine game outcome
+        if winner == 'black':
+            outcome = "Player won"
+        elif winner == 'white':
+            outcome = "AI won"
+        else:
+            outcome = "Draw/unknown"
+
+        # Analyze key moments
+        blunders = 0
+        for i, m in enumerate(moves):
+            if m.get('piece', {}).get('color') == 'black':
+                # Check if next move captured player's piece
+                if i + 1 < len(moves):
+                    next_m = moves[i + 1]
+                    if next_m.get('captured', {}).get('color') == 'black':
+                        blunders += 1
+
+        summary = (
+            f"Game: {total_moves} moves, {outcome}. "
+            f"Player captured: {player_cap_str}. "
+            f"AI captured: {ai_cap_str}. "
+            f"Player blunders: {blunders}."
+        )
+
+        timestamp = game.get('timestamp', '')
+        if timestamp:
+            summary = f"[{timestamp[:10]}] {summary}"
+
+        return summary
+
+    def generate_recent_games_context(self, games: list, player_id: str, max_games: int = 5) -> str:
+        """Generate text context of recent games for LLM prompt"""
+        player_games = [g for g in games if g.get('playerId') == player_id]
+        player_games.sort(key=lambda g: g.get('timestamp', ''), reverse=True)
+
+        if not player_games:
+            return "No previous games recorded."
+
+        recent = player_games[:max_games]
+        summaries = [self.generate_game_summary(g) for g in recent]
+        return "Recent games:\n" + "\n".join(f"- {s}" for s in summaries)
+
     def _empty_patterns(self, player_id: str) -> dict:
         """Return empty pattern structure"""
         return {
