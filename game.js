@@ -923,15 +923,12 @@ window.addEventListener('error', function(e) {
     // Determine who goes first (white always starts in chess)
     const playerColor = gameConfig.playerSide === 'white' ? W : B;
     if (playerColor === W) {
-      // Player is white, they go first
-      showRamsayComment(
-        "RIGHT THEN! You want to go first? FINE! Show me what you've got, you ABSOLUTE WALNUT! I'll be watching EVERY move!"
-      );
+      // Player is white, they go first - get opening taunt from LLM
+      getRamsayReaction("own_move", null);
+      showRamsayComment("RIGHT THEN! Your move first, DONKEY! Show me what you've got!");
     } else {
-      // Ramsay is white, he goes first
-      showRamsayComment(
-        "RIGHT THEN! Listen here you furry little DONKEYS! Chef Ramsay is about to teach you what REAL strategy looks like! MOVE IT!"
-      );
+      // Ramsay is white, he goes first - LLM will pick the move + comment
+      showRamsayComment("RAMSAY IS THINKING...");
       setTimeout(() => makeRamsayMove(), 1500);
     }
   }
@@ -1653,154 +1650,167 @@ window.addEventListener('error', function(e) {
     return bonus;
   }
 
+  function getGamePhase() {
+    const totalMoves = moveHistory.length;
+    const totalPieces = board.flat().filter(p => p !== null).length;
+    if (totalMoves < 10) return 'opening';
+    if (totalPieces <= 10) return 'endgame';
+    return 'middle';
+  }
+
+  function serializeBoard() {
+    return board.map(row => row.map(cell => {
+      if (!cell) return null;
+      return { type: cell.type, color: cell.color, hasMoved: cell.hasMoved };
+    }));
+  }
+
+  function serializeMoveHistory() {
+    return moveHistory.map(m => ({
+      from: m.from,
+      to: m.to,
+      piece: { type: m.piece.type, color: m.piece.color },
+      captured: m.captured ? { type: m.captured.type, color: m.captured.color } : null
+    }));
+  }
+
   function makeRamsayMove() {
     const aiColor = gameConfig.playerSide === 'white' ? B : W;
     if (gameOver || currentPlayer !== aiColor) return;
     ramsayThinking = true;
     updateTurnInfo();
 
-    setTimeout(() => {
-      const moves = getAllMoves(aiColor);
-      if (moves.length === 0) {
-        gameOver = true;
-        showRamsayComment(
-          "BLOODY HELL! I can't even MOVE! You win this time, you lucky DONKEY! But I WILL be back!"
-        );
-        const playerColor = aiColor === W ? B : W;
-        currentPlayer = playerColor;
-        updateTurnInfo();
+    // Get all legal moves for the AI
+    const moves = getAllMoves(aiColor);
+    if (moves.length === 0) {
+      gameOver = true;
+      getRamsayReaction("game_over_lose", null);
+      const playerColor = aiColor === W ? B : W;
+      currentPlayer = playerColor;
+      updateTurnInfo();
+      ramsayThinking = false;
+      saveGameToServer();
+      return;
+    }
+
+    // Serialize data for the API
+    const legalMoves = moves.map(m => ({
+      from: m.from,
+      to: m.to,
+      piece: { type: m.piece.type, color: m.piece.color },
+      capture: m.capture ? { type: m.capture.type, color: m.capture.color } : null
+    }));
+
+    // Call the LLM to pick a move + generate commentary
+    fetch(`${API_BASE}/api/ai-move`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        board: serializeBoard(),
+        legalMoves: legalMoves,
+        moveHistory: serializeMoveHistory(),
+        playerId: playerId,
+        lastPlayerMoveQuality: lastPlayerMoveQuality,
+        gamePhase: getGamePhase()
+      })
+    })
+    .then(resp => resp.json())
+    .then(data => {
+      if (data.error) {
+        console.error('AI move error:', data.error);
+        // Fallback: use local evaluateMove if LLM fails
+        moves.sort((a, b) => evaluateMove(b) - evaluateMove(a));
+        const fallbackMove = moves[0];
         ramsayThinking = false;
-        saveGameToServer();
+        executeMove(fallbackMove.from, fallbackMove.to, () => {
+          showRamsayComment("*grumbles* My BRAIN froze for a second! But I'm STILL going to DESTROY you, DONKEY!");
+          if (gameOver) {
+            drawRamsayPortrait("smug");
+            saveGameToServer();
+          } else {
+            drawRamsayPortrait("neutral");
+          }
+        });
         return;
       }
 
-      // Score and pick best move
-      moves.sort((a, b) => evaluateMove(b) - evaluateMove(a));
-      const best = moves[0];
+      // Use the LLM's chosen move
+      const moveIdx = data.moveIndex;
+      const chosenMove = moves[moveIdx] || moves[0];
+      const comment = data.comment;
 
       ramsayThinking = false;
-      executeMove(best.from, best.to, () => {
-        // Ramsay comments once per round (after his move completes)
+      executeMove(chosenMove.from, chosenMove.to, () => {
+        // Show LLM's commentary
+        if (comment) {
+          showRamsayComment(comment);
+        }
+
         if (gameOver) {
-          getRamsayReaction("game_over_win", best);
           drawRamsayPortrait("smug");
           saveGameToServer();
         } else {
-          // Comment based on player's last move quality
-          if (lastPlayerMoveQuality === "good") {
-            const expr = Math.random() > 0.5 ? "furious" : "impressed";
-            getRamsayReaction("good_player_move", best);
-            drawRamsayPortrait(expr);
+          if (chosenMove.capture) {
+            drawRamsayPortrait("smug");
+          } else if (lastPlayerMoveQuality === "good") {
+            drawRamsayPortrait("furious");
           } else if (lastPlayerMoveQuality === "bad") {
-            const expr = Math.random() > 0.5 ? "smug" : "worried";
-            getRamsayReaction("bad_player_move", best);
-            drawRamsayPortrait(expr);
+            drawRamsayPortrait("smug");
           } else {
-            getRamsayReaction("own_move", best);
             drawRamsayPortrait("neutral");
           }
         }
       });
-    }, 800);
+    })
+    .catch(err => {
+      console.error('AI move fetch error:', err);
+      // Network error fallback: use local evaluateMove
+      moves.sort((a, b) => evaluateMove(b) - evaluateMove(a));
+      const fallbackMove = moves[0];
+      ramsayThinking = false;
+      executeMove(fallbackMove.from, fallbackMove.to, () => {
+        showRamsayComment("The KITCHEN is on FIRE! Connection issues won't stop GORDON RAMSAY!");
+        drawRamsayPortrait("furious");
+      });
+    });
   }
 
   // ============================================================
-  // GORDON RAMSAY'S COMMENTARY - OLLAMA INTEGRATION
+  // GORDON RAMSAY'S COMMENTARY - LLM ONLY (NO FALLBACK QUOTES)
   // ============================================================
 
-  const RAMSAY_ANGRY = [
-    "BLOODY HELL! That was actually a GOOD move! How DARE you, you banana-munching DONKEY!",
-    "Oh for f***'s sake! Even a MONKEY gets lucky! Wait... you ARE a monkey! STILL UNACCEPTABLE!",
-    "RIGHT! That's IT! You think you're CLEVER?! I've seen better strategy from a FISH FINGER but that was actually DECENT!",
-    "SHUT IT DOWN! Where did your pathetic monkey brain come up with THAT?! I'm LIVID!",
-    "You MUPPET! That was actually... good?! NO! I REFUSE to accept this!",
-    "ARE YOU KIDDING ME?! My SOUFFLÉ collapsed and now THIS?! You're RUINING my day, you hairy DONUT!",
-    "THAT was unexpected from a creature that eats BUGS off other creatures' HEADS! I'm FURIOUS!",
-    "Oh WONDERFUL! The monkey learned to play chess! What's next, a Michelin star?! OVER MY DEAD BODY!",
-  ];
-
-  const RAMSAY_MOCK = [
-    "HAHAHAHA! What was THAT?! My GRANDMOTHER plays better chess, and she's been DEAD for twenty years!",
-    "Oh BRILLIANT move! If your goal was to LOSE, you absolute DONUT! Were you aiming for the banana instead?!",
-    "Did you just... did you REALLY?! You're an IDIOT SANDWICH! Say it! SAY IT! 'I'm an idiot sandwich!'",
-    "WHAT ARE YOU?! A chess player?! Don't make me LAUGH! You're a DONKEY playing with expensive furniture!",
-    "That move was so BAD I wouldn't serve it to my WORST ENEMY! And I have MANY enemies, trust me!",
-    "Oh look at the little monkey pushing pieces around! Hasn't got a CLUE! ADORABLE but PATHETIC!",
-    "That's EMBARRASSING! I've seen better moves from a WORM trying to escape a BIRD! You're HOPELESS!",
-    "Is that your strategy?! A TODDLER with a CRAYON could plan better than THAT! Absolute SHAMBLES!",
-  ];
-
-  const RAMSAY_OWN = [
-    "RIGHT THEN! Watch and LEARN, you furry waste of space! THAT'S how a genius plays!",
-    "BOOM! That's how a REAL strategist does it! Take NOTES, DONKEY! Oh wait, you can't WRITE!",
-    "Oh YES! Beautiful! Like a perfectly seared WELLINGTON! Something YOU will never understand!",
-    "THAT is what EXCELLENCE looks like! Military PRECISION! Your monkey brain can't even COMPREHEND it!",
-    "Moving with the precision of a MASTER CHEF plating a dessert! You're the BURNT TOAST, by the way!",
-    "Check THAT out, monkey boy! Your bananas won't save you NOW! HAHAHAHA!",
-    "Lovely, LOVELY move! I'm a GENIUS on the battlefield AND in the kitchen! You're just a MUPPET everywhere!",
-  ];
-
-  const RAMSAY_CAPTURE = [
-    "GET OUT! GET OUT OF MY KITCHEN— I mean BATTLEFIELD! Another monkey DOWN!",
-    "BANG BANG! One more monkey in CHAINS! How does that FEEL, you furry DONKEY?! GLORIOUS!",
-    "That monkey just got SERVED! Like a BURNT SOUFFLÉ at a three-star restaurant! OFF TO THE P.O.W. CAMP!",
-    "ANOTHER ONE BITES THE DUST! Your army is crumbling like a BAD RISOTTO! I LOVE IT!",
-    "Into the CHAINS with that one! This is a MASSACRE and I'm ENJOYING every SECOND!",
-    "Oh DEAR! Lost another soldier, have we?! Well, that's what happens when MONKEYS play SOLDIERS' games!",
-    "ELIMINATED! That monkey couldn't handle the HEAT so it got out of the KITCHEN! Permanently! HAHA!",
-  ];
-
-  const RAMSAY_WIN = [
-    "IT'S DONE! IT'S OVER! Your pathetic monkey king is FINISHED! I AM THE GREATEST CHEF AND CHESS MASTER!",
-    "CHECKMATE, you absolute DONUT! That's what happens when you mess with GORDON BLOODY RAMSAY!",
-    "Game OVER! Your monkey army was RAWWWW! Completely RAW! Uncooked! PATHETIC! I WIN! GET OUT!",
-  ];
-
-  const RAMSAY_LOSE = [
-    "NO! NO NO NO! This CAN'T be happening! A MONKEY beat GORDON RAMSAY?! SHUT IT DOWN! SHUT EVERYTHING DOWN!",
-    "IMPOSSIBLE! You got LUCKY, you banana-breathing DONKEY! I want a REMATCH! RIGHT NOW!",
-    "FINE! You win THIS time! But I swear on my MICHELIN STARS, I'll DESTROY you next game! This isn't OVER!",
-  ];
-
   async function getRamsayReaction(type, move) {
-    let fallback;
     let context = "";
 
     switch (type) {
       case "good_player_move":
-        fallback = RAMSAY_ANGRY;
         context =
-          "The opponent's monkey army just made an excellent chess move, capturing or threatening your important pieces. You are FURIOUS and in complete disbelief. React with extreme anger and dramatic insults.";
+          "The opponent just made an excellent chess move, capturing or threatening your important pieces. You are FURIOUS and in complete disbelief. React with extreme anger and dramatic insults.";
         break;
       case "bad_player_move":
-        fallback = RAMSAY_MOCK;
         context =
-          "The opponent's monkey army just made a terrible chess move. Mock them mercilessly and laugh at their stupidity.";
+          "The opponent just made a terrible chess move. Mock them mercilessly and laugh at their stupidity.";
         break;
       case "own_move":
-        if (move && move.capture) {
-          fallback = RAMSAY_CAPTURE;
+        if (move && (move.capture || move.captured)) {
           context =
-            "You just captured one of the opponent's monkey chess pieces with your British soldier! Gloat, celebrate, and send them to the P.O.W. camp in chains!";
+            "You just captured one of the opponent's chess pieces! Gloat, celebrate, and send them to the P.O.W. camp in chains!";
         } else {
-          fallback = RAMSAY_OWN;
           context =
-            "You just made a brilliant chess move with your British soldiers. Brag about how amazing you are.";
+            "You just made a brilliant chess move. Brag about how amazing you are.";
         }
         break;
       case "game_over_win":
-        fallback = RAMSAY_WIN;
         context =
-          "You just WON the chess game against the monkeys! Celebrate wildly and insult the defeated opponent!";
+          "You just WON the chess game! Celebrate wildly and insult the defeated opponent!";
         break;
       case "game_over_lose":
-        fallback = RAMSAY_LOSE;
         context =
-          "You just LOST the chess game to the monkeys! You're devastated, furious, and in complete denial!";
+          "You just LOST the chess game! You're devastated, furious, and in complete denial!";
         break;
     }
 
-    // Always try to get a fresh quote from the server (which uses Ollama)
+    // Get commentary from LLM - no fallback
     try {
       const resp = await fetch(`${API_BASE}/api/quote`, {
         method: "POST",
@@ -1824,9 +1834,8 @@ window.addEventListener('error', function(e) {
       console.warn("API quote error:", e);
     }
 
-    // Fallback to pre-written quotes only if API fails
-    const quote = fallback[Math.floor(Math.random() * fallback.length)];
-    showRamsayComment(quote);
+    // If LLM is unavailable, show a generic message (no hardcoded quotes)
+    showRamsayComment("...");
   }
 
   function showRamsayComment(text) {
@@ -2045,9 +2054,8 @@ window.addEventListener('error', function(e) {
       usedQuotes = [];
       lastPlayerMoveQuality = "neutral";
       drawRamsayPortrait("neutral");
-      showRamsayComment(
-        "FINE! Let's go AGAIN! This time I'll absolutely DESTROY you, you pathetic banana-brained DONUT! COME ON!"
-      );
+      // Get a fresh rematch taunt from LLM
+      getRamsayReaction("own_move", null);
       setTimeout(() => initGame(), 500);
     });
   }
@@ -2071,13 +2079,16 @@ window.addEventListener('error', function(e) {
       const resp = await fetch(`${API_BASE}/api/health`);
       if (resp.ok) {
         const data = await resp.json();
-        ollamaOK = data.ollama === 'connected';
+        ollamaOK = data.ollama === 'connected' && data.modelAvailable;
         if (el) {
-          if (data.ollama === 'connected') {
-            el.textContent = `OLLAMA: Connected | Storage: Local`;
+          if (ollamaOK) {
+            el.textContent = `OLLAMA: Connected | Llama 3.2 Ready | Storage: Local`;
             el.className = "ollama-status connected";
+          } else if (data.ollama === 'connected') {
+            el.textContent = "OLLAMA: Connected but Llama 3.2 model NOT found. Run: ollama pull llama3.2";
+            el.className = "ollama-status disconnected";
           } else {
-            el.textContent = "OLLAMA: Using fallback quotes";
+            el.textContent = "OLLAMA: Disconnected - Game requires Ollama + Llama 3.2 to play";
             el.className = "ollama-status disconnected";
           }
         }
@@ -2085,10 +2096,11 @@ window.addEventListener('error', function(e) {
     } catch (e) {
       ollamaOK = false;
       if (el) {
-        el.textContent = "Server: Connecting...";
+        el.textContent = "Server: Not running - Start server and Ollama to play";
         el.className = "ollama-status disconnected";
       }
     }
+    return ollamaOK;
   }
 
   // ============================================================
@@ -2278,9 +2290,32 @@ window.addEventListener('error', function(e) {
       }
     }
 
-    // Start game
+    // Start game - requires Ollama + Llama 3.2
     if (startBtn) {
-      startBtn.addEventListener('click', () => {
+      startBtn.addEventListener('click', async () => {
+        // Check Ollama status before allowing game start
+        startBtn.textContent = 'Checking AI...';
+        startBtn.disabled = true;
+
+        const isReady = await checkServerStatus();
+        if (!isReady) {
+          startBtn.textContent = 'START BATTLE!';
+          startBtn.disabled = false;
+          alert(
+            'GAME CANNOT START!\n\n' +
+            'Gordon Ramsay requires Ollama with Llama 3.2 to play.\n\n' +
+            'To set up:\n' +
+            '1. Install Ollama: https://ollama.ai\n' +
+            '2. Run: ollama pull llama3.2\n' +
+            '3. Make sure Ollama is running\n' +
+            '4. Start the game server: python3 app.py\n\n' +
+            'Then try again!'
+          );
+          return;
+        }
+
+        startBtn.textContent = 'START BATTLE!';
+        startBtn.disabled = false;
         themeSelector.style.display = 'none';
         gameContainer.style.display = 'block';
         startGameWithConfig();
