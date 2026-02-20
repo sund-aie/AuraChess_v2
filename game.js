@@ -1,7 +1,7 @@
 // ============================================================
 // GORDON RAMSAY'S CHESS BATTLEFIELD
 // British Soldiers (White) vs Monkeys (Black)
-// 16x16 Pixel Art | Ollama LLama 3.2 AI
+// 32x32 Pixel Art | Ollama LLama 3.2 AI
 // ============================================================
 window.addEventListener('error', function(e) {
   console.error('Global error:', e.message, e.filename, e.lineno);
@@ -16,7 +16,7 @@ window.addEventListener('error', function(e) {
   // === CONFIGURATION ===
   const SQ = 80;
   const BOARD = 8;
-  const SP = 16; // sprite resolution
+  const SP = 32; // sprite resolution (32x32 only)
   const W = "white",
     B = "black";
   const PAWN = "pawn",
@@ -70,7 +70,7 @@ window.addEventListener('error', function(e) {
     killStyle: 'shooting',
     playerSide: 'black', // 'white' or 'black'
     customBoard: null,
-    spriteSize: 16 // 16 or 32
+    spriteSize: 32 // 32x32 only
   };
 
   // Board color schemes
@@ -99,9 +99,8 @@ window.addEventListener('error', function(e) {
 
   // === SPRITE HELPERS ===
   function mkSprite(fn) {
-    const sz = gameConfig.spriteSize || SP;
     const c = document.createElement("canvas");
-    c.width = c.height = sz;
+    c.width = c.height = 32;
     const x = c.getContext("2d");
     fn(x);
     return c;
@@ -116,454 +115,11 @@ window.addEventListener('error', function(e) {
   const ATTACK_HIGHLIGHT = "rgba(255, 34, 34, 0.4)"; // red tint for captures
 
   // ============================================================
-  // 16x16 PIXEL ART SPRITES - BRITISH SOLDIERS (WHITE)
+  // SPRITE LOOKUP (32x32 only - from sprites32.js)
   // ============================================================
 
-  function drawSoldierPawn(c) {
-    // Bearskin hat
-    R(c, "#1a1a2e", 5, 0, 6, 4);
-    R(c, "#12121e", 6, 0, 4, 1);
-    // Face
-    R(c, "#ffcc99", 6, 4, 4, 2);
-    R(c, "#220000", 7, 4, 1, 1);
-    R(c, "#220000", 9, 4, 1, 1);
-    R(c, "#ee9966", 7, 5, 2, 1);
-    // Red coat
-    R(c, "#cc2222", 5, 6, 6, 4);
-    R(c, "#ffffff", 5, 6, 1, 4);
-    R(c, "#ffffff", 10, 6, 1, 4);
-    R(c, "#ffd700", 7, 7, 1, 1);
-    R(c, "#ffd700", 7, 8, 1, 1);
-    // Rifle
-    R(c, "#888888", 11, 3, 1, 8);
-    R(c, "#6B4226", 11, 9, 1, 2);
-    R(c, "#aaaaaa", 11, 2, 1, 2);
-    // Pants & boots
-    R(c, "#2a2a5a", 6, 10, 2, 3);
-    R(c, "#2a2a5a", 8, 10, 2, 3);
-    R(c, "#111122", 6, 13, 2, 2);
-    R(c, "#111122", 8, 13, 2, 2);
-  }
-
-  function drawSoldierRook(c) {
-    // Fortress tower top (crenellations)
-    R(c, "#888888", 3, 0, 2, 2);
-    R(c, "#888888", 7, 0, 2, 2);
-    R(c, "#888888", 11, 0, 2, 2);
-    R(c, "#999999", 3, 2, 10, 2);
-    // Tower body
-    R(c, "#cc2222", 4, 4, 8, 6);
-    R(c, "#aa1111", 5, 4, 6, 1);
-    // Cross emblem
-    R(c, "#ffffff", 7, 5, 2, 4);
-    R(c, "#ffffff", 6, 6, 4, 2);
-    // Cannon barrel
-    R(c, "#555555", 2, 6, 3, 2);
-    R(c, "#444444", 1, 7, 2, 1);
-    R(c, "#ffff00", 0, 7, 1, 1); // muzzle
-    // Base
-    R(c, "#666666", 3, 10, 10, 2);
-    R(c, "#555555", 4, 12, 8, 2);
-    R(c, "#444444", 5, 14, 6, 2);
-  }
-
-  function drawSoldierKnight(c) {
-    // Horse head
-    R(c, "#8B6914", 6, 0, 5, 3);
-    R(c, "#7a5a10", 5, 2, 3, 2);
-    R(c, "#8B6914", 4, 3, 3, 2);
-    // Horse eye
-    R(c, "#000000", 8, 1, 1, 1);
-    // Horse ear
-    R(c, "#6B4914", 9, 0, 1, 1);
-    // Mane
-    R(c, "#3a2a0a", 10, 0, 1, 3);
-    R(c, "#3a2a0a", 11, 1, 1, 2);
-    // Horse mouth
-    R(c, "#daa520", 4, 4, 2, 1);
-    R(c, "#000000", 4, 4, 1, 1);
-    // Rider body (red coat)
-    R(c, "#cc2222", 6, 5, 5, 4);
-    R(c, "#ffd700", 8, 6, 1, 2); // button
-    // Rider head
-    R(c, "#1a1a2e", 7, 3, 3, 1); // helmet
-    R(c, "#ffcc99", 7, 4, 3, 1); // face
-    // Sword
-    R(c, "#cccccc", 11, 4, 1, 6);
-    R(c, "#ffd700", 11, 9, 1, 1);
-    R(c, "#8B4513", 11, 10, 1, 2);
-    // Legs / horse body
-    R(c, "#8B6914", 5, 9, 7, 2);
-    R(c, "#7a5a10", 4, 11, 3, 3);
-    R(c, "#7a5a10", 9, 11, 3, 3);
-    // Hooves
-    R(c, "#333333", 4, 14, 2, 2);
-    R(c, "#333333", 10, 14, 2, 2);
-  }
-
-  function drawSoldierBishop(c) {
-    // Bicorn hat
-    R(c, "#1a1a2e", 3, 1, 4, 2);
-    R(c, "#1a1a2e", 9, 1, 4, 2);
-    R(c, "#1a1a2e", 5, 0, 6, 3);
-    R(c, "#ffd700", 7, 0, 2, 1); // gold band
-    // Face
-    R(c, "#ffcc99", 6, 3, 4, 3);
-    R(c, "#220000", 7, 4, 1, 1);
-    R(c, "#220000", 9, 4, 1, 1);
-    R(c, "#ee9966", 7, 5, 2, 1);
-    // Red coat with epaulettes
-    R(c, "#cc2222", 5, 6, 6, 5);
-    R(c, "#ffd700", 5, 6, 1, 1); // left epaulette
-    R(c, "#ffd700", 10, 6, 1, 1); // right epaulette
-    R(c, "#ffffff", 7, 7, 2, 3); // front panel
-    R(c, "#ffd700", 7, 7, 1, 1);
-    R(c, "#ffd700", 7, 9, 1, 1);
-    // Pistol
-    R(c, "#555555", 11, 7, 2, 1);
-    R(c, "#555555", 12, 7, 1, 3);
-    R(c, "#8B4513", 12, 9, 1, 2);
-    // Pants & boots
-    R(c, "#2a2a5a", 6, 11, 2, 2);
-    R(c, "#2a2a5a", 8, 11, 2, 2);
-    R(c, "#111122", 6, 13, 2, 2);
-    R(c, "#111122", 8, 13, 2, 2);
-  }
-
-  function drawSoldierQueen(c) {
-    // Plumed hat
-    R(c, "#1a1a2e", 5, 1, 6, 3);
-    R(c, "#cc2222", 6, 0, 4, 2); // red plume
-    R(c, "#ff4444", 7, 0, 2, 1);
-    R(c, "#ffd700", 5, 3, 6, 1); // gold brim
-    // Face
-    R(c, "#ffcc99", 6, 4, 4, 2);
-    R(c, "#220000", 7, 4, 1, 1);
-    R(c, "#220000", 9, 4, 1, 1);
-    // Decorated red coat
-    R(c, "#cc2222", 4, 6, 8, 5);
-    R(c, "#ffd700", 4, 6, 8, 1); // gold trim top
-    R(c, "#ffd700", 4, 10, 8, 1); // gold trim bottom
-    R(c, "#ffffff", 7, 7, 2, 3);
-    R(c, "#ffd700", 7, 7, 1, 1);
-    R(c, "#ffd700", 7, 8, 1, 1);
-    R(c, "#ffd700", 7, 9, 1, 1);
-    // Twin pistols
-    R(c, "#555555", 3, 7, 1, 3);
-    R(c, "#555555", 2, 7, 1, 1);
-    R(c, "#555555", 12, 7, 1, 3);
-    R(c, "#555555", 13, 7, 1, 1);
-    // Pants & boots
-    R(c, "#2a2a5a", 5, 11, 2, 2);
-    R(c, "#2a2a5a", 9, 11, 2, 2);
-    R(c, "#111122", 5, 13, 2, 2);
-    R(c, "#111122", 9, 13, 2, 2);
-  }
-
-  function drawSoldierKing(c) {
-    // Chef hat (Gordon Ramsay!)
-    R(c, "#ffffff", 5, 0, 6, 4);
-    R(c, "#eeeeee", 6, 0, 4, 1);
-    R(c, "#dddddd", 5, 3, 6, 1);
-    R(c, "#f0f0f0", 6, 1, 4, 2);
-    // Hair (blonde)
-    R(c, "#daa520", 5, 4, 1, 1);
-    R(c, "#daa520", 10, 4, 1, 1);
-    // Angry face
-    R(c, "#ffcc99", 5, 4, 6, 3);
-    R(c, "#aa6633", 6, 4, 2, 1); // angry left brow (\/shape)
-    R(c, "#aa6633", 8, 4, 2, 1); // angry right brow
-    R(c, "#2244aa", 6, 5, 1, 1); // left eye
-    R(c, "#2244aa", 9, 5, 1, 1); // right eye
-    R(c, "#ee9966", 7, 6, 2, 1); // nose
-    R(c, "#cc0000", 6, 7, 4, 1); // shouting mouth
-    R(c, "#880000", 7, 7, 2, 1); // mouth inner
-    // Chef jacket
-    R(c, "#ffffff", 4, 8, 8, 4);
-    R(c, "#dddddd", 4, 8, 8, 1);
-    R(c, "#333333", 7, 9, 1, 1); // button
-    R(c, "#333333", 7, 10, 1, 1);
-    R(c, "#333333", 7, 11, 1, 1);
-    // Cleaver
-    R(c, "#cccccc", 12, 5, 2, 3);
-    R(c, "#aaaaaa", 12, 5, 2, 1);
-    R(c, "#8B4513", 12, 8, 1, 3);
-    // Pants & shoes
-    R(c, "#333333", 5, 12, 2, 2);
-    R(c, "#333333", 9, 12, 2, 2);
-    R(c, "#222222", 5, 14, 2, 2);
-    R(c, "#222222", 9, 14, 2, 2);
-  }
-
-  // ============================================================
-  // 16x16 PIXEL ART SPRITES - MONKEYS (BLACK)
-  // ============================================================
-
-  function drawMonkeyPawn(c) {
-    // Head (round)
-    R(c, "#8B5E3C", 5, 1, 5, 4);
-    R(c, "#8B5E3C", 6, 0, 3, 1);
-    // Ears
-    R(c, "#DEB887", 4, 2, 1, 2);
-    R(c, "#DEB887", 10, 2, 1, 2);
-    R(c, "#8B5E3C", 4, 1, 1, 1);
-    R(c, "#8B5E3C", 10, 1, 1, 1);
-    // Face
-    R(c, "#DEB887", 6, 2, 3, 3);
-    R(c, "#111111", 6, 3, 1, 1); // left eye
-    R(c, "#111111", 8, 3, 1, 1); // right eye
-    R(c, "#5C3A1E", 7, 4, 1, 1); // nose
-    R(c, "#aa5533", 6, 4, 3, 1); // mouth area
-    // Body
-    R(c, "#8B5E3C", 5, 5, 5, 5);
-    R(c, "#A0724A", 6, 6, 3, 3); // belly
-    // Banana gun (right hand)
-    R(c, "#FFD700", 10, 4, 3, 1);
-    R(c, "#FFD700", 11, 5, 2, 1);
-    R(c, "#FFC300", 12, 4, 1, 1);
-    R(c, "#555555", 12, 3, 1, 2); // barrel
-    // Arms
-    R(c, "#8B5E3C", 4, 6, 1, 3);
-    R(c, "#8B5E3C", 10, 6, 1, 3);
-    // Legs
-    R(c, "#8B5E3C", 5, 10, 2, 3);
-    R(c, "#8B5E3C", 8, 10, 2, 3);
-    // Feet
-    R(c, "#5C3A1E", 5, 13, 2, 2);
-    R(c, "#5C3A1E", 8, 13, 2, 2);
-    // Tail
-    R(c, "#7A4E2D", 3, 8, 1, 1);
-    R(c, "#7A4E2D", 2, 7, 1, 1);
-    R(c, "#7A4E2D", 1, 6, 1, 1);
-    R(c, "#7A4E2D", 1, 5, 1, 2);
-  }
-
-  function drawMonkeyRook(c) {
-    // Gorilla - big blocky head
-    R(c, "#5C3A1E", 3, 0, 10, 5);
-    R(c, "#4A2E18", 4, 0, 8, 1);
-    // Brow ridge
-    R(c, "#4A2E18", 4, 2, 8, 1);
-    // Eyes
-    R(c, "#DEB887", 5, 3, 2, 1);
-    R(c, "#DEB887", 9, 3, 2, 1);
-    R(c, "#ff0000", 5, 3, 1, 1);
-    R(c, "#ff0000", 9, 3, 1, 1);
-    // Snout
-    R(c, "#DEB887", 6, 4, 4, 2);
-    R(c, "#111111", 7, 4, 1, 1);
-    R(c, "#111111", 8, 4, 1, 1);
-    R(c, "#aa5533", 7, 5, 2, 1); // mouth
-    // Massive body
-    R(c, "#5C3A1E", 2, 6, 12, 5);
-    R(c, "#4A2E18", 3, 6, 10, 1);
-    R(c, "#6B4A30", 5, 7, 6, 3); // chest
-    // Club weapon
-    R(c, "#8B4513", 0, 3, 2, 6);
-    R(c, "#6B3510", 0, 2, 2, 2);
-    R(c, "#555555", 0, 1, 2, 2); // metal head
-    // Arms
-    R(c, "#5C3A1E", 1, 6, 2, 4);
-    R(c, "#5C3A1E", 13, 6, 2, 4);
-    // Legs
-    R(c, "#5C3A1E", 4, 11, 3, 3);
-    R(c, "#5C3A1E", 9, 11, 3, 3);
-    // Feet
-    R(c, "#3A2212", 4, 14, 3, 2);
-    R(c, "#3A2212", 9, 14, 3, 2);
-  }
-
-  function drawMonkeyKnight(c) {
-    // Swinging monkey - dynamic pose
-    // Head
-    R(c, "#8B5E3C", 7, 0, 4, 3);
-    R(c, "#8B5E3C", 8, 0, 2, 1);
-    // Tuft of hair
-    R(c, "#5C3A1E", 8, 0, 2, 1);
-    // Ears
-    R(c, "#DEB887", 6, 1, 1, 1);
-    R(c, "#DEB887", 11, 1, 1, 1);
-    // Face
-    R(c, "#DEB887", 8, 1, 2, 2);
-    R(c, "#111111", 8, 1, 1, 1); // eye
-    R(c, "#111111", 9, 1, 1, 1); // eye
-    R(c, "#5C3A1E", 8, 2, 2, 1); // nose/mouth
-    // Body
-    R(c, "#8B5E3C", 6, 3, 5, 5);
-    R(c, "#A0724A", 7, 4, 3, 3); // belly
-    // Vine/rope
-    R(c, "#228B22", 4, 0, 1, 7);
-    R(c, "#228B22", 5, 3, 1, 1);
-    // Arm holding vine
-    R(c, "#8B5E3C", 5, 3, 2, 2);
-    // Coconut bomb (right hand)
-    R(c, "#8B4513", 11, 4, 3, 3);
-    R(c, "#6B3510", 12, 4, 1, 1);
-    R(c, "#ff6600", 12, 3, 1, 1); // fuse spark
-    R(c, "#ffff00", 12, 3, 1, 1);
-    // Right arm
-    R(c, "#8B5E3C", 10, 4, 2, 2);
-    // Curled tail
-    R(c, "#7A4E2D", 4, 6, 1, 1);
-    R(c, "#7A4E2D", 3, 5, 1, 1);
-    R(c, "#7A4E2D", 2, 4, 1, 1);
-    R(c, "#7A4E2D", 2, 3, 1, 2);
-    // Legs
-    R(c, "#8B5E3C", 6, 8, 2, 4);
-    R(c, "#8B5E3C", 9, 8, 2, 4);
-    // Feet
-    R(c, "#5C3A1E", 6, 12, 2, 2);
-    R(c, "#5C3A1E", 9, 12, 2, 2);
-    // Banana holster
-    R(c, "#FFD700", 8, 7, 1, 2);
-  }
-
-  function drawMonkeyBishop(c) {
-    // Chimp with blowdart - smart looking
-    // Head
-    R(c, "#5C3A1E", 5, 0, 6, 4);
-    R(c, "#5C3A1E", 6, 0, 4, 1);
-    // Smart eyes (glasses-like)
-    R(c, "#DEB887", 6, 2, 4, 2);
-    R(c, "#111111", 6, 2, 1, 1);
-    R(c, "#111111", 9, 2, 1, 1);
-    R(c, "#333388", 6, 2, 2, 1); // "glasses" left
-    R(c, "#333388", 8, 2, 2, 1); // "glasses" right
-    // Nose & mouth
-    R(c, "#aa6644", 7, 3, 2, 1);
-    // Ears
-    R(c, "#DEB887", 4, 1, 1, 2);
-    R(c, "#DEB887", 11, 1, 1, 2);
-    // Body
-    R(c, "#5C3A1E", 5, 4, 6, 5);
-    R(c, "#7A5E3C", 6, 5, 4, 3);
-    // Blowdart tube (long!)
-    R(c, "#228B22", 11, 1, 5, 1);
-    R(c, "#1a6b1a", 11, 1, 1, 1);
-    // Holding arm
-    R(c, "#5C3A1E", 10, 3, 2, 2);
-    // Left arm
-    R(c, "#5C3A1E", 4, 5, 1, 3);
-    // Legs
-    R(c, "#5C3A1E", 6, 9, 2, 4);
-    R(c, "#5C3A1E", 8, 9, 2, 4);
-    R(c, "#3A2212", 6, 13, 2, 2);
-    R(c, "#3A2212", 8, 13, 2, 2);
-    // Tail
-    R(c, "#7A4E2D", 4, 7, 1, 1);
-    R(c, "#7A4E2D", 3, 6, 1, 1);
-    R(c, "#7A4E2D", 2, 5, 1, 2);
-  }
-
-  function drawMonkeyQueen(c) {
-    // Orangutan - wide, powerful, orange-red
-    // Wide head with cheek pads
-    R(c, "#CC6600", 3, 0, 10, 5);
-    R(c, "#DD7711", 2, 1, 2, 3); // left cheek pad
-    R(c, "#DD7711", 12, 1, 2, 3); // right cheek pad
-    // Face
-    R(c, "#DEB887", 5, 2, 6, 3);
-    R(c, "#111111", 6, 2, 1, 1);
-    R(c, "#111111", 9, 2, 1, 1);
-    R(c, "#aa6644", 7, 3, 2, 1);
-    R(c, "#884422", 6, 4, 4, 1); // mouth
-    // Long red-orange fur
-    R(c, "#CC6600", 3, 5, 10, 5);
-    R(c, "#BB5500", 4, 5, 8, 1);
-    R(c, "#DEB887", 5, 6, 6, 3); // belly
-    // Long arms with dual bamboo guns
-    R(c, "#CC6600", 1, 4, 3, 5);
-    R(c, "#CC6600", 12, 4, 3, 5);
-    R(c, "#228B22", 0, 4, 1, 3); // left bamboo gun
-    R(c, "#1a6b1a", 0, 3, 1, 2);
-    R(c, "#228B22", 15, 4, 1, 3); // right bamboo gun
-    R(c, "#1a6b1a", 15, 3, 1, 2);
-    // Legs
-    R(c, "#CC6600", 4, 10, 3, 4);
-    R(c, "#CC6600", 9, 10, 3, 4);
-    R(c, "#3A2212", 4, 14, 3, 2);
-    R(c, "#3A2212", 9, 14, 3, 2);
-  }
-
-  function drawMonkeyKing(c) {
-    // Monkey King - crown, cape, golden staff
-    // Crown
-    R(c, "#FFD700", 5, 0, 6, 3);
-    R(c, "#FF4444", 6, 1, 1, 1); // ruby
-    R(c, "#FF4444", 9, 1, 1, 1);
-    R(c, "#FFD700", 5, 0, 1, 1);
-    R(c, "#FFD700", 7, 0, 1, 1);
-    R(c, "#FFD700", 10, 0, 1, 1);
-    // Head
-    R(c, "#5C3A1E", 5, 3, 6, 3);
-    R(c, "#DEB887", 6, 4, 4, 2);
-    R(c, "#111111", 7, 4, 1, 1);
-    R(c, "#111111", 9, 4, 1, 1);
-    R(c, "#aa6644", 7, 5, 2, 1);
-    // Ears
-    R(c, "#DEB887", 4, 3, 1, 2);
-    R(c, "#DEB887", 11, 3, 1, 2);
-    // Cape (purple/red royal)
-    R(c, "#8B0000", 3, 6, 10, 6);
-    R(c, "#aa1111", 4, 6, 8, 1);
-    // Body under cape
-    R(c, "#5C3A1E", 5, 6, 6, 5);
-    R(c, "#7A5E3C", 6, 7, 4, 3);
-    // Golden staff
-    R(c, "#FFD700", 12, 2, 1, 10);
-    R(c, "#FFD700", 11, 2, 3, 1); // staff top
-    R(c, "#FF4444", 12, 1, 1, 1); // jewel
-    // Arms
-    R(c, "#5C3A1E", 4, 7, 1, 3);
-    R(c, "#5C3A1E", 11, 7, 1, 3);
-    // Legs under cape
-    R(c, "#5C3A1E", 5, 12, 2, 2);
-    R(c, "#5C3A1E", 9, 12, 2, 2);
-    R(c, "#3A2212", 5, 14, 2, 2);
-    R(c, "#3A2212", 9, 14, 2, 2);
-    // Tail
-    R(c, "#7A4E2D", 2, 9, 1, 1);
-    R(c, "#7A4E2D", 1, 8, 1, 1);
-    R(c, "#7A4E2D", 1, 7, 1, 2);
-  }
-
-  // ============================================================
-  // CREATE ALL SPRITES
-  // ============================================================
-  // british/monkeys are local IIFE functions (always available).
-  // All other themes use window[fnName] lookup at runtime so we never
-  // get a ReferenceError even if themes.js globals aren't hoisted into
-  // the IIFE scope.
-  const LOCAL_SPRITE_FUNCTIONS = {
-    british: {
-      pawn: drawSoldierPawn,
-      rook: drawSoldierRook,
-      knight: drawSoldierKnight,
-      bishop: drawSoldierBishop,
-      queen: drawSoldierQueen,
-      king: drawSoldierKing
-    },
-    monkeys: {
-      pawn: drawMonkeyPawn,
-      rook: drawMonkeyRook,
-      knight: drawMonkeyKnight,
-      bishop: drawMonkeyBishop,
-      queen: drawMonkeyQueen,
-      king: drawMonkeyKing
-    }
-  };
-
-  // Map of theme keys to their global function name prefixes in themes.js (16x16)
-  const THEME_FN_NAMES = {
-    classic_white: 'ClassicWhite',
-    classic_black: 'ClassicBlack',
-    american: 'American',
-    arab: 'Arab',
-    ninja: 'Ninja',
-    knights: 'Crusader'
-  };
-
-  // Map of ALL theme keys to their 32x32 global function name prefixes (sprites32.js)
+  // All 32x32 sprites are in sprites32.js as global window functions
+  // Map of theme keys to their 32x32 function name prefixes
   const THEME_FN_NAMES_32 = {
     british: 'Soldier32',
     monkeys: 'Monkey32',
@@ -576,50 +132,27 @@ window.addEventListener('error', function(e) {
   };
 
   function getSpriteFunctions(themeKey) {
-    const is32 = gameConfig.spriteSize === 32;
     const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
+    const prefix32 = THEME_FN_NAMES_32[themeKey];
 
-    // If 32x32 mode, try native 32x32 functions first
-    if (is32) {
-      const prefix32 = THEME_FN_NAMES_32[themeKey];
-      if (prefix32) {
-        const fns = {};
-        let allFound = true;
-        for (const piece of pieces) {
-          const fn = window['draw' + prefix32 + piece];
-          if (typeof fn === 'function') {
-            fns[piece.toLowerCase()] = fn;
-          } else {
-            allFound = false;
-          }
-        }
-        if (allFound) return fns;
+    if (!prefix32) {
+      console.warn('Theme not found:', themeKey);
+      return null;
+    }
+
+    const fns = {};
+    let allFound = true;
+    for (const piece of pieces) {
+      const fn = window['draw' + prefix32 + piece];
+      if (typeof fn === 'function') {
+        fns[piece.toLowerCase()] = fn;
+      } else {
+        console.warn('Missing 32x32 sprite:', 'draw' + prefix32 + piece);
+        allFound = false;
       }
     }
 
-    // 16x16 mode (or fallback): check local IIFE functions (british, monkeys)
-    if (LOCAL_SPRITE_FUNCTIONS[themeKey]) return LOCAL_SPRITE_FUNCTIONS[themeKey];
-
-    // Look up themes.js functions by name from the window object
-    const prefix = THEME_FN_NAMES[themeKey];
-    if (prefix) {
-      const fns = {};
-      let allFound = true;
-      for (const piece of pieces) {
-        const fnName = 'draw' + prefix + piece;
-        const fn = window[fnName];
-        if (typeof fn === 'function') {
-          fns[piece.toLowerCase()] = fn;
-        } else {
-          console.warn('Missing sprite function:', fnName);
-          allFound = false;
-        }
-      }
-      if (allFound) return fns;
-      if (Object.keys(fns).length > 0) return fns;
-    }
-
-    console.warn('Theme not found:', themeKey);
+    if (Object.keys(fns).length > 0) return fns;
     return null;
   }
 
@@ -647,243 +180,99 @@ window.addEventListener('error', function(e) {
   }
 
   // ============================================================
-  // GORDON RAMSAY PIXEL PORTRAIT (16x16 version)
-  // ============================================================
-  function drawRamsayPortrait16(rx, expression) {
-    const oc = document.createElement("canvas");
-    oc.width = oc.height = 16;
-    const ox = oc.getContext("2d");
-
-    const faceColors = {
-      neutral: "#ffcc99", furious: "#ff8866",
-      impressed: "#ffcc99", smug: "#ffcc99", worried: "#ffeebb"
-    };
-    const fc = faceColors[expression] || faceColors.neutral;
-
-    // Background
-    R(ox, "#2a1a0e", 0, 0, 16, 16);
-    // Chef hat
-    R(ox, "#ffffff", 4, 0, 8, 4);
-    R(ox, "#eeeeee", 5, 0, 6, 2);
-    R(ox, "#dddddd", 4, 3, 8, 1);
-    // Hair
-    R(ox, "#daa520", 4, 4, 1, 1);
-    R(ox, "#daa520", 11, 4, 1, 1);
-    // Face
-    R(ox, fc, 5, 4, 6, 5);
-    // Eyebrows
-    if (expression === "furious") {
-      R(ox, "#8B6914", 5, 5, 2, 1);
-      R(ox, "#8B6914", 9, 5, 2, 1);
-    } else {
-      R(ox, "#8B6914", 5, 5, 2, 1);
-      R(ox, "#8B6914", 9, 5, 2, 1);
-    }
-    // Eyes
-    if (expression === "furious") {
-      R(ox, "#ffffff", 5, 6, 2, 1);
-      R(ox, "#ffffff", 9, 6, 2, 1);
-      R(ox, "#cc2222", 6, 6, 1, 1);
-      R(ox, "#cc2222", 10, 6, 1, 1);
-    } else if (expression === "smug") {
-      R(ox, "#2244aa", 6, 6, 1, 1);
-      R(ox, "#2244aa", 10, 6, 1, 1);
-    } else {
-      R(ox, "#ffffff", 5, 6, 2, 1);
-      R(ox, "#ffffff", 9, 6, 2, 1);
-      R(ox, "#2244aa", 6, 6, 1, 1);
-      R(ox, "#2244aa", 10, 6, 1, 1);
-    }
-    // Nose
-    R(ox, "#eebb88", 7, 7, 2, 1);
-    // Mouth
-    if (expression === "furious") {
-      R(ox, "#cc0000", 6, 8, 4, 1);
-      R(ox, "#ffffff", 6, 8, 1, 1);
-      R(ox, "#ffffff", 9, 8, 1, 1);
-    } else if (expression === "smug") {
-      R(ox, "#cc4444", 6, 8, 4, 1);
-      R(ox, "#ffffff", 7, 8, 2, 1);
-    } else {
-      R(ox, "#cc6666", 6, 8, 4, 1);
-    }
-    // Wrinkles
-    R(ox, "#ddaa77", 4, 7, 1, 1);
-    R(ox, "#ddaa77", 11, 7, 1, 1);
-    // Chef jacket
-    R(ox, "#ffffff", 3, 10, 10, 6);
-    R(ox, "#eeeeee", 3, 10, 10, 1);
-    R(ox, "#dddddd", 7, 11, 1, 4);
-    // Buttons
-    R(ox, "#333333", 7, 12, 1, 1);
-    R(ox, "#333333", 7, 14, 1, 1);
-
-    rx.drawImage(oc, 0, 0, 128, 128);
-  }
-
-  // ============================================================
-  // GORDON RAMSAY PIXEL PORTRAIT (32x32 version)
+  // REMASTERED GORDON RAMSAY PORTRAIT (32x32 Base)
   // ============================================================
   function drawRamsayPortrait(expression = "neutral") {
-    // Expressions: "neutral", "furious", "impressed", "smug", "worried"
     const rc = document.getElementById("ramsayFace");
     if (!rc) return;
     const rx = rc.getContext("2d");
     rx.imageSmoothingEnabled = false;
 
-    // Use 16x16 mode if spriteSize is 16
-    if (gameConfig.spriteSize !== 32) {
-      drawRamsayPortrait16(rx, expression);
-      return;
-    }
-
     const oc = document.createElement("canvas");
     oc.width = oc.height = 32;
     const ox = oc.getContext("2d");
 
-    // Face colors based on expression
-    const faceColors = {
-      neutral: "#ffcc99",
-      furious: "#ff8866",   // Red tinted - angry
-      impressed: "#ffcc99",
-      smug: "#ffcc99",
-      worried: "#ffeebb"    // Pale/yellowish
+    // Dynamic dramatic lighting background
+    const bgColors = {
+      neutral: "#1a1a1a",
+      furious: "#4a0a0a",
+      smug: "#0a1a2a",
+      worried: "#2a2a1a"
     };
-    const faceColor = faceColors[expression] || faceColors.neutral;
 
-    // Background
-    R(ox, "#2a1a0e", 0, 0, 32, 32);
+    // Background with dramatic vignette
+    R(ox, bgColors[expression] || "#1a1a1a", 0, 0, 32, 32);
+    R(ox, "#000000", 0, 0, 32, 4);
+    R(ox, "#000000", 0, 28, 32, 4);
 
-    // Steam lines for furious expression
+    // Sculpted Chef hat (Tall and commanding)
+    R(ox, "#ffffff", 8, 2, 16, 8);
+    R(ox, "#cccccc", 8, 8, 16, 2);
+    R(ox, "#999999", 6, 10, 20, 2);
+    R(ox, "#ffffff", 6, 8, 2, 2);
+    R(ox, "#ffffff", 24, 8, 2, 2);
+
+    // Highly structured face (chiselled jawline)
+    const skin = expression === "furious" ? "#d35400" : "#e67e22";
+    const lightSkin = expression === "furious" ? "#e67e22" : "#f39c12";
+    const shadowSkin = expression === "furious" ? "#922b21" : "#a04000";
+
+    R(ox, skin, 9, 12, 14, 12);
+    R(ox, lightSkin, 10, 12, 6, 10);
+    R(ox, shadowSkin, 20, 12, 3, 12);
+
+    // Deep forehead wrinkles (Ramsay's signature)
+    R(ox, shadowSkin, 11, 13, 10, 1);
+    R(ox, shadowSkin, 12, 15, 8, 1);
+
+    // Expressions
     if (expression === "furious") {
-      R(ox, "#ffffff", 4, 2, 1, 3);
-      R(ox, "#eeeeee", 5, 1, 1, 2);
-      R(ox, "#ffffff", 27, 2, 1, 3);
-      R(ox, "#eeeeee", 26, 1, 1, 2);
-    }
-
-    // Chef hat
-    R(ox, "#ffffff", 8, 0, 16, 7);
-    R(ox, "#f8f8f8", 10, 0, 12, 3);
-    R(ox, "#eeeeee", 9, 6, 14, 1);
-    // Hair (blonde)
-    R(ox, "#daa520", 8, 7, 3, 3);
-    R(ox, "#daa520", 21, 7, 3, 3);
-    // Face
-    R(ox, faceColor, 9, 7, 14, 10);
-    R(ox, faceColor, 10, 17, 12, 2);
-
-    // Expression-specific eyebrows
-    if (expression === "neutral") {
-      // Slight frown
-      R(ox, "#8B6914", 10, 10, 5, 1);
-      R(ox, "#8B6914", 17, 10, 5, 1);
-    } else if (expression === "furious") {
-      // Deep V frown, lower
-      R(ox, "#8B6914", 10, 9, 5, 2);
-      R(ox, "#8B6914", 17, 9, 5, 2);
-      R(ox, "#5a3a00", 12, 9, 2, 1);
-      R(ox, "#5a3a00", 18, 9, 2, 1);
-      R(ox, "#5a3a00", 14, 10, 4, 1);
-    } else if (expression === "impressed") {
-      // One raised eyebrow
-      R(ox, "#8B6914", 10, 8, 5, 1);  // Left raised
-      R(ox, "#8B6914", 17, 10, 5, 1); // Right normal
+      // Demonic anger
+      R(ox, "#111111", 10, 16, 5, 2);
+      R(ox, "#111111", 17, 16, 5, 2);
+      R(ox, "#ffffff", 11, 18, 3, 2);
+      R(ox, "#ffffff", 18, 18, 3, 2);
+      R(ox, "#e74c3c", 12, 18, 1, 1);
+      R(ox, "#e74c3c", 19, 18, 1, 1);
+      // Roaring mouth
+      R(ox, "#4a0a0a", 12, 22, 8, 4);
+      R(ox, "#ffffff", 13, 22, 6, 1);
     } else if (expression === "smug") {
-      // Relaxed, slightly raised
-      R(ox, "#8B6914", 10, 9, 5, 1);
-      R(ox, "#8B6914", 17, 9, 5, 1);
-    } else if (expression === "worried") {
-      // Raised worried brows
-      R(ox, "#8B6914", 10, 8, 5, 1);
-      R(ox, "#8B6914", 17, 8, 5, 1);
-      R(ox, "#8B6914", 12, 9, 2, 1);
-      R(ox, "#8B6914", 18, 9, 2, 1);
-    }
-
-    // Eyes - vary by expression
-    if (expression === "smug") {
-      // Squinted laughing eyes
-      R(ox, "#ffffff", 11, 11, 3, 1);
-      R(ox, "#ffffff", 18, 11, 3, 1);
-      R(ox, "#2244aa", 12, 11, 2, 1);
-      R(ox, "#2244aa", 19, 11, 2, 1);
-    } else if (expression === "impressed") {
-      // Narrowed calculating eyes
-      R(ox, "#ffffff", 11, 11, 3, 2);
-      R(ox, "#ffffff", 18, 11, 3, 2);
-      R(ox, "#2244aa", 11, 11, 2, 2);
-      R(ox, "#2244aa", 19, 11, 2, 2);
-      R(ox, "#000000", 11, 12, 1, 1);
-      R(ox, "#000000", 19, 12, 1, 1);
-    } else if (expression === "furious") {
-      // Wide angry eyes
-      R(ox, "#ffffff", 10, 11, 4, 3);
-      R(ox, "#ffffff", 18, 11, 4, 3);
-      R(ox, "#cc2222", 11, 12, 3, 2); // Red-tinted irises
-      R(ox, "#cc2222", 19, 12, 3, 2);
-      R(ox, "#000000", 12, 12, 1, 1);
-      R(ox, "#000000", 20, 12, 1, 1);
+      // Cocky smirk
+      R(ox, "#111111", 10, 17, 5, 1);
+      R(ox, "#111111", 17, 16, 5, 1);
+      R(ox, "#ffffff", 11, 18, 3, 1);
+      R(ox, "#ffffff", 18, 18, 3, 1);
+      R(ox, "#111111", 12, 18, 1, 1);
+      R(ox, "#111111", 19, 18, 1, 1);
+      // Smirk
+      R(ox, "#4a0a0a", 14, 23, 6, 1);
+      R(ox, "#4a0a0a", 18, 22, 2, 1);
     } else {
-      // Normal eyes
-      R(ox, "#ffffff", 11, 11, 3, 2);
-      R(ox, "#ffffff", 18, 11, 3, 2);
-      R(ox, "#2244aa", 12, 11, 2, 2);
-      R(ox, "#2244aa", 19, 11, 2, 2);
-      R(ox, "#000000", 12, 12, 1, 1);
-      R(ox, "#000000", 19, 12, 1, 1);
-    }
-
-    // Sweat drop for worried
-    if (expression === "worried") {
-      R(ox, "#88ccff", 7, 10, 1, 2);
-      R(ox, "#aaeeff", 7, 10, 1, 1);
+      // Neutral / Disappointed
+      R(ox, "#111111", 10, 16, 5, 1);
+      R(ox, "#111111", 17, 16, 5, 1);
+      R(ox, "#ffffff", 11, 17, 3, 2);
+      R(ox, "#ffffff", 18, 17, 3, 2);
+      R(ox, "#111111", 12, 17, 1, 1);
+      R(ox, "#111111", 19, 17, 1, 1);
+      // Flat, unamused mouth
+      R(ox, "#4a0a0a", 13, 23, 6, 1);
     }
 
     // Nose
-    R(ox, "#eebb88", 14, 13, 4, 3);
-    R(ox, "#dd9966", 15, 14, 2, 2);
+    R(ox, shadowSkin, 15, 18, 2, 4);
+    R(ox, lightSkin, 14, 19, 1, 3);
 
-    // Mouth - varies by expression
-    if (expression === "neutral") {
-      // Slight frown
-      R(ox, "#cc6666", 12, 17, 8, 2);
-      R(ox, "#993333", 13, 18, 6, 1);
-    } else if (expression === "furious") {
-      // Wide open shouting
-      R(ox, "#cc0000", 10, 17, 12, 4);
-      R(ox, "#880000", 11, 18, 10, 3);
-      R(ox, "#ffffff", 11, 17, 2, 1); // teeth
-      R(ox, "#ffffff", 19, 17, 2, 1);
-      R(ox, "#ff4444", 14, 19, 4, 1); // tongue
-    } else if (expression === "impressed") {
-      // Pursed/concerned
-      R(ox, "#cc6666", 13, 17, 6, 2);
-      R(ox, "#aa4444", 14, 17, 4, 1);
-    } else if (expression === "smug") {
-      // Big grin
-      R(ox, "#cc4444", 11, 17, 10, 3);
-      R(ox, "#ffffff", 12, 17, 8, 1); // big toothy grin
-      R(ox, "#993333", 12, 19, 8, 1);
-    } else if (expression === "worried") {
-      // Nervous wavy mouth
-      R(ox, "#cc8866", 12, 17, 2, 1);
-      R(ox, "#cc8866", 14, 18, 4, 1);
-      R(ox, "#cc8866", 18, 17, 2, 1);
-    }
+    // Imposing Chef Jacket (Battle Commander style)
+    R(ox, "#ecf0f1", 6, 24, 20, 8);
+    R(ox, "#bdc3c7", 6, 24, 8, 8);
+    R(ox, "#2c3e50", 14, 24, 4, 8);
+    R(ox, "#f1c40f", 10, 26, 2, 2);
+    R(ox, "#f1c40f", 10, 30, 2, 2);
 
-    // Wrinkle lines
-    R(ox, "#ddaa77", 8, 13, 1, 2);
-    R(ox, "#ddaa77", 23, 13, 1, 2);
-    // Chef jacket
-    R(ox, "#ffffff", 6, 20, 20, 12);
-    R(ox, "#eeeeee", 6, 20, 20, 1);
-    R(ox, "#dddddd", 15, 22, 2, 8);
-    // Buttons
-    R(ox, "#333333", 15, 23, 2, 1);
-    R(ox, "#333333", 15, 26, 2, 1);
-    R(ox, "#333333", 15, 29, 2, 1);
-
+    // Scale up to fit the 128x128 UI canvas
+    rx.clearRect(0, 0, 128, 128);
     rx.drawImage(oc, 0, 0, 128, 128);
   }
 
@@ -1292,11 +681,11 @@ window.addEventListener('error', function(e) {
         ctx.arc(mfx, mfy, 4 * (1 - t), 0, Math.PI * 2);
         ctx.fill();
 
-        // 16x16 Bullet sprite
+        // Bullet sprite
         const bx = fx + (tx - fx) * (0.15 + 0.85 * t);
         const by = fy + (ty - fy) * (0.15 + 0.85 * t);
 
-        // Draw 16x16 pixel art bullet
+        // Draw pixel art bullet
         const bulletX = bx - 8;
         const bulletY = by - 8;
 
@@ -1320,7 +709,7 @@ window.addEventListener('error', function(e) {
         ctx.fillStyle = "#995522";
         ctx.fillRect(bulletX + 10, bulletY + 3, 1, 10);
 
-        // Bullet trail (wider for 16x16)
+        // Bullet trail
         ctx.strokeStyle = "rgba(255, 200, 0, 0.4)";
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -2222,15 +1611,6 @@ window.addEventListener('error', function(e) {
       });
     });
 
-    // Texture size buttons
-    document.querySelectorAll('.size-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        gameConfig.spriteSize = parseInt(btn.dataset.size, 10);
-      });
-    });
-
     // Designer button
     if (designerBtn) {
       designerBtn.addEventListener('click', () => {
@@ -2344,9 +1724,9 @@ window.addEventListener('error', function(e) {
       const theme = card.dataset.theme;
       const themeFns = getSpriteFunctions(theme);
 
-      // Create a temp 16x16 canvas and draw the king as preview
+      // Create a temp 32x32 canvas and draw the king as preview
       const temp = document.createElement('canvas');
-      temp.width = temp.height = 16;
+      temp.width = temp.height = 32;
       const tempCtx = temp.getContext('2d');
 
       if (themeFns && themeFns.king) {
@@ -2354,7 +1734,7 @@ window.addEventListener('error', function(e) {
       } else {
         // Fallback - draw a simple placeholder
         tempCtx.fillStyle = '#888';
-        tempCtx.fillRect(4, 4, 8, 8);
+        tempCtx.fillRect(8, 8, 16, 16);
       }
 
       // Scale to preview canvas (64x64 for new dossier cards)
