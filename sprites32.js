@@ -1,4 +1,13 @@
 // ============================================================
+// Shared pixel-drawing helper used by all sprite functions
+// Must be global since sprite functions are global (outside IIFE)
+// ============================================================
+function R(c, color, x, y, w, h) {
+  c.fillStyle = color;
+  c.fillRect(x, y, w || 1, h || 1);
+}
+
+// ============================================================
 // CLASSIC CHESS PIECE SPRITES (32x32)
 // Traditional chess pieces with 3D shading
 // Classic White: ivory/cream with dark outline
@@ -2247,4 +2256,294 @@ function drawMonkey32King(c) {
   R(c, "#7A4E2D", 4, 18, 2, 2);    // tail 1
   R(c, "#7A4E2D", 2, 16, 2, 2);    // tail 2
   R(c, "#7A4E2D", 2, 14, 2, 4);    // tail curl
+}
+
+// ============================================================
+// ANIMATED CLASSIC SPRITES (Frame-based: idle, walk1, walk2, salute)
+// Classic pieces animate via "weight" - hovering/bobbing when moving,
+// a passing gleam/shine on salute.
+// ============================================================
+
+// ============================================================
+// FACTION: CLASSIC WHITE (IVORY MARBLE)
+// ============================================================
+
+function drawClassicWhitePawn(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  // Outline
+  R(c, "#2c3e50", 11, 8+dy, 10, 10);
+  R(c, "#2c3e50", 13, 16+dy, 6, 10);
+  R(c, "#2c3e50", 7, 24+dy, 18, 6);
+
+  // Base
+  R(c, "#ecf0f1", 8, 25+dy, 16, 4);
+  R(c, "#bdc3c7", 8, 27+dy, 16, 2);
+
+  // Stem & Collar
+  R(c, "#ecf0f1", 14, 18+dy, 4, 7);
+  R(c, "#bdc3c7", 10, 17+dy, 12, 3);
+
+  // Head
+  R(c, "#ecf0f1", 12, 9+dy, 8, 8);
+  R(c, "#ffffff", 13, 10+dy, 3, 3);
+
+  // Salute Gleam
+  if (frame === "salute") {
+    R(c, "#ffffff", 8, 25+dy, 16, 1);
+    R(c, "#ffffff", 14, 9+dy, 4, 8);
+  }
+}
+
+function drawClassicWhiteRook(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#2c3e50", 5, 6+dy, 22, 24);
+
+  // Base
+  R(c, "#ecf0f1", 6, 26+dy, 20, 3);
+  R(c, "#bdc3c7", 6, 28+dy, 20, 1);
+
+  // Tower Body
+  R(c, "#ecf0f1", 8, 12+dy, 16, 14);
+  R(c, "#95a5a6", 18, 12+dy, 6, 14);
+
+  // Battlements (Top)
+  R(c, "#bdc3c7", 6, 10+dy, 20, 3);
+  R(c, "#ecf0f1", 6, 7+dy, 4, 4);
+  R(c, "#ecf0f1", 14, 7+dy, 4, 4);
+  R(c, "#ecf0f1", 22, 7+dy, 4, 4);
+
+  if (frame === "salute") R(c, "#ffffff", 8, 12+dy, 4, 14);
+}
+
+function drawClassicWhiteKnight(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -3 : 0;
+
+  R(c, "#2c3e50", 5, 5+dy, 22, 25);
+
+  // Base
+  R(c, "#ecf0f1", 6, 26+dy, 20, 3);
+
+  // Horse Body & Neck
+  R(c, "#ecf0f1", 12, 12+dy, 14, 14);
+  R(c, "#bdc3c7", 18, 14+dy, 8, 12);
+
+  // Horse Head
+  R(c, "#ecf0f1", 6, 7+dy, 14, 8);
+  R(c, "#bdc3c7", 6, 11+dy, 12, 4);
+  R(c, "#2c3e50", 10, 9+dy, 2, 2);
+
+  // Mane
+  R(c, "#95a5a6", 20, 6+dy, 4, 10);
+
+  if (frame === "salute") R(c, "#ffffff", 8, 8+dy, 4, 2);
+}
+
+function drawClassicWhiteBishop(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#2c3e50", 9, 3+dy, 14, 27);
+
+  // Base & Stem
+  R(c, "#ecf0f1", 10, 26+dy, 12, 3);
+  R(c, "#ecf0f1", 13, 16+dy, 6, 10);
+  R(c, "#bdc3c7", 11, 15+dy, 10, 2);
+
+  // Mitre (Hat)
+  R(c, "#ecf0f1", 11, 6+dy, 10, 9);
+  R(c, "#bdc3c7", 16, 6+dy, 5, 9);
+  R(c, "#2c3e50", 15, 8+dy, 2, 5);
+
+  // Cross
+  R(c, "#f1c40f", 15, 2+dy, 2, 4);
+  R(c, "#f1c40f", 14, 3+dy, 4, 2);
+
+  if (frame === "salute") R(c, "#ffffff", 12, 7+dy, 2, 6);
+}
+
+function drawClassicWhiteQueen(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#2c3e50", 5, 3+dy, 22, 27);
+
+  // Base & Stem
+  R(c, "#ecf0f1", 8, 26+dy, 16, 3);
+  R(c, "#ecf0f1", 12, 14+dy, 8, 12);
+
+  // Coronet Base
+  R(c, "#bdc3c7", 8, 12+dy, 16, 3);
+
+  // Crown Points
+  R(c, "#ecf0f1", 6, 6+dy, 4, 6);
+  R(c, "#ecf0f1", 14, 4+dy, 4, 8);
+  R(c, "#ecf0f1", 22, 6+dy, 4, 6);
+
+  // Jewels
+  R(c, "#3498db", 7, 8+dy, 2, 2);
+  R(c, "#3498db", 15, 6+dy, 2, 2);
+  R(c, "#3498db", 23, 8+dy, 2, 2);
+
+  if (frame === "salute") R(c, "#ffffff", 14, 15+dy, 2, 10);
+}
+
+function drawClassicWhiteKing(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#2c3e50", 5, 1+dy, 22, 29);
+
+  // Base & Stem
+  R(c, "#ecf0f1", 8, 26+dy, 16, 3);
+  R(c, "#ecf0f1", 11, 16+dy, 10, 10);
+
+  // Crown Base
+  R(c, "#bdc3c7", 8, 14+dy, 16, 3);
+
+  // Majestic Crown
+  R(c, "#ecf0f1", 6, 8+dy, 20, 6);
+  R(c, "#e74c3c", 8, 10+dy, 16, 4);
+
+  // Top Cross
+  R(c, "#f1c40f", 15, 2+dy, 2, 6);
+  R(c, "#f1c40f", 13, 4+dy, 6, 2);
+
+  if (frame === "salute") {
+    R(c, "#ffffff", 15, 2+dy, 2, 6);
+    R(c, "#ffffff", 13, 4+dy, 6, 2);
+  }
+}
+
+// ============================================================
+// FACTION: CLASSIC BLACK (OBSIDIAN)
+// ============================================================
+
+function drawClassicBlackPawn(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#111111", 11, 8+dy, 10, 10);
+  R(c, "#111111", 13, 16+dy, 6, 10);
+  R(c, "#111111", 7, 24+dy, 18, 6);
+
+  R(c, "#2c3e50", 8, 25+dy, 16, 4);
+  R(c, "#1a252f", 8, 27+dy, 16, 2);
+
+  R(c, "#2c3e50", 14, 18+dy, 4, 7);
+  R(c, "#1a252f", 10, 17+dy, 12, 3);
+
+  R(c, "#2c3e50", 12, 9+dy, 8, 8);
+  R(c, "#7f8c8d", 13, 10+dy, 2, 2);
+
+  if (frame === "salute") R(c, "#7f8c8d", 14, 9+dy, 4, 8);
+}
+
+function drawClassicBlackRook(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#111111", 5, 6+dy, 22, 24);
+
+  R(c, "#2c3e50", 6, 26+dy, 20, 3);
+  R(c, "#1a252f", 6, 28+dy, 20, 1);
+
+  R(c, "#2c3e50", 8, 12+dy, 16, 14);
+  R(c, "#1a252f", 18, 12+dy, 6, 14);
+
+  R(c, "#1a252f", 6, 10+dy, 20, 3);
+  R(c, "#2c3e50", 6, 7+dy, 4, 4);
+  R(c, "#2c3e50", 14, 7+dy, 4, 4);
+  R(c, "#2c3e50", 22, 7+dy, 4, 4);
+
+  if (frame === "salute") R(c, "#7f8c8d", 8, 12+dy, 2, 14);
+}
+
+function drawClassicBlackKnight(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -3 : 0;
+
+  R(c, "#111111", 5, 5+dy, 22, 25);
+
+  R(c, "#2c3e50", 6, 26+dy, 20, 3);
+
+  R(c, "#2c3e50", 12, 12+dy, 14, 14);
+  R(c, "#1a252f", 18, 14+dy, 8, 12);
+
+  R(c, "#2c3e50", 6, 7+dy, 14, 8);
+  R(c, "#1a252f", 6, 11+dy, 12, 4);
+  R(c, "#e74c3c", 10, 9+dy, 2, 2);
+
+  R(c, "#1a252f", 20, 6+dy, 4, 10);
+
+  if (frame === "salute") R(c, "#7f8c8d", 8, 8+dy, 4, 2);
+}
+
+function drawClassicBlackBishop(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#111111", 9, 3+dy, 14, 27);
+
+  R(c, "#2c3e50", 10, 26+dy, 12, 3);
+  R(c, "#2c3e50", 13, 16+dy, 6, 10);
+  R(c, "#1a252f", 11, 15+dy, 10, 2);
+
+  R(c, "#2c3e50", 11, 6+dy, 10, 9);
+  R(c, "#1a252f", 16, 6+dy, 5, 9);
+  R(c, "#111111", 15, 8+dy, 2, 5);
+
+  R(c, "#8e44ad", 15, 2+dy, 2, 4);
+  R(c, "#8e44ad", 14, 3+dy, 4, 2);
+
+  if (frame === "salute") R(c, "#7f8c8d", 12, 7+dy, 2, 6);
+}
+
+function drawClassicBlackQueen(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#111111", 5, 3+dy, 22, 27);
+
+  R(c, "#2c3e50", 8, 26+dy, 16, 3);
+  R(c, "#2c3e50", 12, 14+dy, 8, 12);
+
+  R(c, "#1a252f", 8, 12+dy, 16, 3);
+
+  R(c, "#2c3e50", 6, 6+dy, 4, 6);
+  R(c, "#2c3e50", 14, 4+dy, 4, 8);
+  R(c, "#2c3e50", 22, 6+dy, 4, 6);
+
+  R(c, "#8e44ad", 7, 8+dy, 2, 2);
+  R(c, "#8e44ad", 15, 6+dy, 2, 2);
+  R(c, "#8e44ad", 23, 8+dy, 2, 2);
+
+  if (frame === "salute") R(c, "#7f8c8d", 14, 15+dy, 2, 10);
+}
+
+function drawClassicBlackKing(c, frame) {
+  frame = frame || "idle";
+  let dy = (frame === "walk1" || frame === "walk2") ? -2 : 0;
+
+  R(c, "#111111", 5, 1+dy, 22, 29);
+
+  R(c, "#2c3e50", 8, 26+dy, 16, 3);
+  R(c, "#2c3e50", 11, 16+dy, 10, 10);
+
+  R(c, "#1a252f", 8, 14+dy, 16, 3);
+
+  R(c, "#2c3e50", 6, 8+dy, 20, 6);
+  R(c, "#4a0a0a", 8, 10+dy, 16, 4);
+
+  R(c, "#8e44ad", 15, 2+dy, 2, 6);
+  R(c, "#8e44ad", 13, 4+dy, 6, 2);
+
+  if (frame === "salute") {
+    R(c, "#9b59b6", 15, 2+dy, 2, 6);
+    R(c, "#9b59b6", 13, 4+dy, 6, 2);
+  }
 }
