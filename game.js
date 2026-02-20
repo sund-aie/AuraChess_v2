@@ -50,6 +50,15 @@ window.addEventListener('error', function(e) {
   let usedQuotes = [];
   let lastPlayerMoveQuality = "neutral"; // "good", "bad", or "neutral"
 
+  // REMASTERED: Ramsay Animation State Tracker
+  const ramsayState = {
+    expression: "neutral",
+    isSpeaking: false,     // Set to true when text is actively typing out
+    lastBlink: 0,
+    isBlinking: false
+  };
+  let speakingTimeout = null;
+
   // === API & LEARNING ===
   const API_BASE = window.location.origin;
   let playerId = localStorage.getItem('chessPlayerId');
@@ -120,6 +129,7 @@ window.addEventListener('error', function(e) {
 
   // All 32x32 sprites are in sprites32.js as global window functions
   // Map of theme keys to their 32x32 function name prefixes
+  // Static (single-frame) theme function name prefixes
   const THEME_FN_NAMES_32 = {
     british: 'Soldier32',
     monkeys: 'Monkey32',
@@ -129,6 +139,14 @@ window.addEventListener('error', function(e) {
     arab: 'Arab32',
     ninja: 'Ninja32',
     knights: 'Crusader32'
+  };
+
+  // Animated themes with frame-based sprites (idle, walk1, walk2, salute)
+  const ANIMATED_THEMES = ['classic_white', 'classic_black'];
+  const ANIM_FRAMES = ['idle', 'walk1', 'walk2', 'salute'];
+  const ANIMATED_THEME_FN_NAMES = {
+    classic_white: 'ClassicWhite',
+    classic_black: 'ClassicBlack'
   };
 
   function getSpriteFunctions(themeKey) {
@@ -141,14 +159,12 @@ window.addEventListener('error', function(e) {
     }
 
     const fns = {};
-    let allFound = true;
     for (const piece of pieces) {
       const fn = window['draw' + prefix32 + piece];
       if (typeof fn === 'function') {
         fns[piece.toLowerCase()] = fn;
       } else {
         console.warn('Missing 32x32 sprite:', 'draw' + prefix32 + piece);
-        allFound = false;
       }
     }
 
@@ -157,32 +173,49 @@ window.addEventListener('error', function(e) {
   }
 
   function createAllSprites() {
-    const whiteFns = getSpriteFunctions(gameConfig.whitePieces);
-    const blackFns = getSpriteFunctions(gameConfig.blackPieces);
+    const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
+    const sides = [
+      { themeKey: gameConfig.whitePieces, color: 'white' },
+      { themeKey: gameConfig.blackPieces, color: 'black' }
+    ];
 
-    if (whiteFns) {
-      sprites.white_pawn = mkSprite(whiteFns.pawn);
-      sprites.white_rook = mkSprite(whiteFns.rook);
-      sprites.white_knight = mkSprite(whiteFns.knight);
-      sprites.white_bishop = mkSprite(whiteFns.bishop);
-      sprites.white_queen = mkSprite(whiteFns.queen);
-      sprites.white_king = mkSprite(whiteFns.king);
-    }
+    for (const { themeKey, color } of sides) {
+      const isAnimated = ANIMATED_THEMES.includes(themeKey);
 
-    if (blackFns) {
-      sprites.black_pawn = mkSprite(blackFns.pawn);
-      sprites.black_rook = mkSprite(blackFns.rook);
-      sprites.black_knight = mkSprite(blackFns.knight);
-      sprites.black_bishop = mkSprite(blackFns.bishop);
-      sprites.black_queen = mkSprite(blackFns.queen);
-      sprites.black_king = mkSprite(blackFns.king);
+      if (isAnimated) {
+        // Pre-render 4 frames per piece for animated themes
+        const prefix = ANIMATED_THEME_FN_NAMES[themeKey];
+        for (const piece of pieces) {
+          const fn = window['draw' + prefix + piece];
+          if (typeof fn === 'function') {
+            for (const frame of ANIM_FRAMES) {
+              sprites[color + '_' + piece.toLowerCase() + '_' + frame] =
+                mkSprite((ctx) => fn(ctx, frame));
+            }
+            // Base key points to idle for backward compatibility
+            sprites[color + '_' + piece.toLowerCase()] =
+              sprites[color + '_' + piece.toLowerCase() + '_idle'];
+          }
+        }
+      } else {
+        // Single-frame for non-animated themes
+        const fns = getSpriteFunctions(themeKey);
+        if (fns) {
+          for (const piece of Object.keys(fns)) {
+            sprites[color + '_' + piece] = mkSprite(fns[piece]);
+          }
+        }
+      }
     }
   }
 
   // ============================================================
-  // REMASTERED GORDON RAMSAY PORTRAIT (32x32 Base)
+  // REMASTERED: Animated Gordon Ramsay Portrait (32x32 Base)
   // ============================================================
-  function drawRamsayPortrait(expression = "neutral") {
+  function drawRamsayPortrait(expression) {
+    if (expression) ramsayState.expression = expression;
+    const expr = ramsayState.expression || "neutral";
+
     const rc = document.getElementById("ramsayFace");
     if (!rc) return;
     const rx = rc.getContext("2d");
@@ -192,86 +225,109 @@ window.addEventListener('error', function(e) {
     oc.width = oc.height = 32;
     const ox = oc.getContext("2d");
 
-    // Dynamic dramatic lighting background
+    const now = performance.now();
+
+    // --- Animation Math ---
+    // Randomized blinking (blinks every 3 to 6 seconds)
+    if (now - ramsayState.lastBlink > 3000 + Math.random() * 3000) {
+      ramsayState.isBlinking = true;
+      ramsayState.lastBlink = now;
+    }
+    // Keep eyes closed for 150ms
+    if (ramsayState.isBlinking && now - ramsayState.lastBlink > 150) {
+      ramsayState.isBlinking = false;
+    }
+
+    // Talk animation (flaps mouth every 150ms if speaking)
+    const mouthOpen = ramsayState.isSpeaking && (Math.floor(now / 150) % 2 === 0);
+    const blink = ramsayState.isBlinking;
+
+    // --- Background & Lighting ---
     const bgColors = {
-      neutral: "#1a1a1a",
-      furious: "#4a0a0a",
-      smug: "#0a1a2a",
-      worried: "#2a2a1a"
+      neutral: "#1a1a1a", furious: "#4a0a0a", smug: "#0a1a2a", worried: "#2a2a1a"
     };
+    R(ox, bgColors[expr] || "#1a1a1a", 0, 0, 32, 32);
+    R(ox, "#000000", 0, 0, 32, 4);   // Top shadow
+    R(ox, "#000000", 0, 28, 32, 4);  // Bottom shadow
 
-    // Background with dramatic vignette
-    R(ox, bgColors[expression] || "#1a1a1a", 0, 0, 32, 32);
-    R(ox, "#000000", 0, 0, 32, 4);
-    R(ox, "#000000", 0, 28, 32, 4);
-
-    // Sculpted Chef hat (Tall and commanding)
-    R(ox, "#ffffff", 8, 2, 16, 8);
-    R(ox, "#cccccc", 8, 8, 16, 2);
-    R(ox, "#999999", 6, 10, 20, 2);
+    // --- Hat & Face Base ---
+    R(ox, "#ffffff", 8, 2, 16, 8);   // Hat base
+    R(ox, "#cccccc", 8, 8, 16, 2);   // Hat fold
+    R(ox, "#999999", 6, 10, 20, 2);  // Brim shadow
     R(ox, "#ffffff", 6, 8, 2, 2);
     R(ox, "#ffffff", 24, 8, 2, 2);
 
-    // Highly structured face (chiselled jawline)
-    const skin = expression === "furious" ? "#d35400" : "#e67e22";
-    const lightSkin = expression === "furious" ? "#e67e22" : "#f39c12";
-    const shadowSkin = expression === "furious" ? "#922b21" : "#a04000";
+    const skin = expr === "furious" ? "#d35400" : "#e67e22";
+    const lightSkin = expr === "furious" ? "#e67e22" : "#f39c12";
+    const shadowSkin = expr === "furious" ? "#922b21" : "#a04000";
 
     R(ox, skin, 9, 12, 14, 12);
     R(ox, lightSkin, 10, 12, 6, 10);
     R(ox, shadowSkin, 20, 12, 3, 12);
-
-    // Deep forehead wrinkles (Ramsay's signature)
-    R(ox, shadowSkin, 11, 13, 10, 1);
+    R(ox, shadowSkin, 11, 13, 10, 1); // Forehead wrinkles
     R(ox, shadowSkin, 12, 15, 8, 1);
 
-    // Expressions
-    if (expression === "furious") {
-      // Demonic anger
-      R(ox, "#111111", 10, 16, 5, 2);
-      R(ox, "#111111", 17, 16, 5, 2);
-      R(ox, "#ffffff", 11, 18, 3, 2);
-      R(ox, "#ffffff", 18, 18, 3, 2);
-      R(ox, "#e74c3c", 12, 18, 1, 1);
-      R(ox, "#e74c3c", 19, 18, 1, 1);
-      // Roaring mouth
-      R(ox, "#4a0a0a", 12, 22, 8, 4);
-      R(ox, "#ffffff", 13, 22, 6, 1);
-    } else if (expression === "smug") {
-      // Cocky smirk
-      R(ox, "#111111", 10, 17, 5, 1);
-      R(ox, "#111111", 17, 16, 5, 1);
-      R(ox, "#ffffff", 11, 18, 3, 1);
-      R(ox, "#ffffff", 18, 18, 3, 1);
-      R(ox, "#111111", 12, 18, 1, 1);
-      R(ox, "#111111", 19, 18, 1, 1);
-      // Smirk
-      R(ox, "#4a0a0a", 14, 23, 6, 1);
-      R(ox, "#4a0a0a", 18, 22, 2, 1);
+    // --- Animated Eyes ---
+    if (blink) {
+      // Eyes closed (just dark creases)
+      R(ox, "#111111", 10, 17, 5, 1); // Left closed
+      R(ox, "#111111", 17, 17, 5, 1); // Right closed
     } else {
-      // Neutral / Disappointed
-      R(ox, "#111111", 10, 16, 5, 1);
-      R(ox, "#111111", 17, 16, 5, 1);
-      R(ox, "#ffffff", 11, 17, 3, 2);
-      R(ox, "#ffffff", 18, 17, 3, 2);
-      R(ox, "#111111", 12, 17, 1, 1);
-      R(ox, "#111111", 19, 17, 1, 1);
-      // Flat, unamused mouth
-      R(ox, "#4a0a0a", 13, 23, 6, 1);
+      // Eyes open (varies by expression)
+      if (expr === "furious") {
+        R(ox, "#111111", 10, 16, 5, 2);
+        R(ox, "#111111", 17, 16, 5, 2);
+        R(ox, "#ffffff", 11, 18, 3, 2);
+        R(ox, "#ffffff", 18, 18, 3, 2);
+        R(ox, "#e74c3c", 12, 18, 1, 1); // Glowing red
+        R(ox, "#e74c3c", 19, 18, 1, 1);
+      } else if (expr === "smug") {
+        R(ox, "#111111", 10, 17, 5, 1);
+        R(ox, "#111111", 17, 16, 5, 1);
+        R(ox, "#ffffff", 11, 18, 3, 1);
+        R(ox, "#ffffff", 18, 18, 3, 1);
+        R(ox, "#111111", 12, 18, 1, 1);
+        R(ox, "#111111", 19, 18, 1, 1);
+      } else {
+        R(ox, "#111111", 10, 16, 5, 1);
+        R(ox, "#111111", 17, 16, 5, 1);
+        R(ox, "#ffffff", 11, 17, 3, 2);
+        R(ox, "#ffffff", 18, 17, 3, 2);
+        R(ox, "#111111", 12, 17, 1, 1);
+        R(ox, "#111111", 19, 17, 1, 1);
+      }
     }
 
-    // Nose
+    // --- Nose ---
     R(ox, shadowSkin, 15, 18, 2, 4);
     R(ox, lightSkin, 14, 19, 1, 3);
 
-    // Imposing Chef Jacket (Battle Commander style)
+    // --- Animated Mouth ---
+    if (mouthOpen) {
+      // Shouting / Talking
+      R(ox, "#4a0a0a", 12, 21, 8, 5); // Wide open mouth
+      R(ox, "#ffffff", 13, 21, 6, 1); // Top teeth
+      R(ox, "#c0392b", 14, 24, 4, 2); // Tongue
+    } else {
+      // Mouth Closed
+      if (expr === "furious") {
+        R(ox, "#4a0a0a", 12, 23, 8, 2); // Gritted teeth
+        R(ox, "#ffffff", 13, 23, 6, 1);
+      } else if (expr === "smug") {
+        R(ox, "#4a0a0a", 14, 23, 6, 1); // Smirk
+        R(ox, "#4a0a0a", 18, 22, 2, 1);
+      } else {
+        R(ox, "#4a0a0a", 13, 23, 6, 1); // Flat line
+      }
+    }
+
+    // --- Jacket ---
     R(ox, "#ecf0f1", 6, 24, 20, 8);
     R(ox, "#bdc3c7", 6, 24, 8, 8);
     R(ox, "#2c3e50", 14, 24, 4, 8);
-    R(ox, "#f1c40f", 10, 26, 2, 2);
+    R(ox, "#f1c40f", 10, 26, 2, 2); // Brass buttons
     R(ox, "#f1c40f", 10, 30, 2, 2);
 
-    // Scale up to fit the 128x128 UI canvas
     rx.clearRect(0, 0, 128, 128);
     rx.drawImage(oc, 0, 0, 128, 128);
   }
@@ -303,6 +359,9 @@ window.addEventListener('error', function(e) {
     animState = null;
     ramsayThinking = false;
     lastPlayerMoveQuality = "neutral";
+    ramsayState.expression = "neutral";
+    ramsayState.isSpeaking = false;
+    if (speakingTimeout) { clearTimeout(speakingTimeout); speakingTimeout = null; }
 
     updatePOW();
     drawBoard();
@@ -368,13 +427,20 @@ window.addEventListener('error', function(e) {
           )
             continue;
         }
-        drawPieceAt(piece, c * SQ, r * SQ, 1);
+        // Use "salute" frame for selected piece (gleam effect)
+        const frame = (selected && selected.row === r && selected.col === c) ? "salute" : undefined;
+        drawPieceAt(piece, c * SQ, r * SQ, 1, frame);
       }
     }
   }
 
-  function drawPieceAt(piece, x, y, alpha) {
-    const key = piece.color + "_" + piece.type;
+  function drawPieceAt(piece, x, y, alpha, frame) {
+    let key = piece.color + "_" + piece.type;
+    // Use frame-specific sprite if available (for animated themes)
+    if (frame) {
+      const frameKey = key + "_" + frame;
+      if (sprites[frameKey]) key = frameKey;
+    }
     const sprite = sprites[key];
     if (!sprite) return;
     ctx.imageSmoothingEnabled = false;
@@ -608,7 +674,8 @@ window.addEventListener('error', function(e) {
       const y = fy + (ty - fy) * ease - Math.sin(t * Math.PI) * 12;
 
       drawBoard();
-      drawPieceAt(animState.piece, x, y, 1);
+      const walkFrame = Math.floor(elapsed / 150) % 2 === 0 ? "walk1" : "walk2";
+      drawPieceAt(animState.piece, x, y, 1, walkFrame);
 
       if (t >= 1) {
         const cb = animState.callback;
@@ -786,7 +853,8 @@ window.addEventListener('error', function(e) {
           (animState.to.row - animState.from.row) * SQ * ease -
           Math.sin(t * Math.PI) * 12;
 
-        drawPieceAt(animState.attacker, ax, ay, 1);
+        const shootWalkFrame = Math.floor((elapsed - aimDur - fireDur - hitDur) / 150) % 2 === 0 ? "walk1" : "walk2";
+        drawPieceAt(animState.attacker, ax, ay, 1, shootWalkFrame);
       } else {
         // Animation complete
         animState.targetHidden = true;
@@ -818,7 +886,8 @@ window.addEventListener('error', function(e) {
         const ax = animState.from.col * SQ + (animState.to.col - animState.from.col) * SQ * ease * 0.7;
         const ay = animState.from.row * SQ + (animState.to.row - animState.from.row) * SQ * ease * 0.7;
 
-        drawPieceAt(animState.attacker, ax, ay, 1);
+        const rushFrame = Math.floor(elapsed / 150) % 2 === 0 ? "walk1" : "walk2";
+        drawPieceAt(animState.attacker, ax, ay, 1, rushFrame);
         drawPieceAt(animState.victim, animState.to.col * SQ, animState.to.row * SQ, 1);
       } else if (elapsed < rushDur + stabDur) {
         // Phase 1: Stab motion - lunge forward
@@ -890,7 +959,8 @@ window.addEventListener('error', function(e) {
         const ax = startX + (animState.to.col * SQ - startX) * ease;
         const ay = startY + (animState.to.row * SQ - startY) * ease - Math.sin(t * Math.PI) * 8;
 
-        drawPieceAt(animState.attacker, ax, ay, 1);
+        const stabWalkFrame = Math.floor((elapsed - rushDur - stabDur - hitDur) / 150) % 2 === 0 ? "walk1" : "walk2";
+        drawPieceAt(animState.attacker, ax, ay, 1, stabWalkFrame);
       } else {
         // Animation complete
         animState.targetHidden = true;
@@ -1236,11 +1306,24 @@ window.addEventListener('error', function(e) {
     usedQuotes.push(text);
 
     const el = document.getElementById("ramsayText");
-    if (el) {
-      el.textContent = text;
-      const speech = document.getElementById("ramsaySpeech");
-      if (speech) speech.scrollTop = speech.scrollHeight;
-    }
+    if (!el) return;
+
+    // Clear any previous speaking timeout
+    if (speakingTimeout) clearTimeout(speakingTimeout);
+
+    // Set speaking state for mouth animation
+    ramsayState.isSpeaking = true;
+
+    el.textContent = text;
+    const speech = document.getElementById("ramsaySpeech");
+    if (speech) speech.scrollTop = speech.scrollHeight;
+
+    // Stop speaking after a duration based on text length (~50ms per char, min 1s)
+    const speakDuration = Math.max(1000, text.length * 50);
+    speakingTimeout = setTimeout(() => {
+      ramsayState.isSpeaking = false;
+      speakingTimeout = null;
+    }, speakDuration);
   }
 
   // ============================================================
@@ -1456,6 +1539,7 @@ window.addEventListener('error', function(e) {
     if (animState) {
       updateAnimation(now);
     }
+    drawRamsayPortrait(); // animate Ramsay every frame (blink + lip-sync)
     requestAnimationFrame(gameLoop);
   }
 
@@ -1718,17 +1802,29 @@ window.addEventListener('error', function(e) {
     document.querySelectorAll('.piece-card').forEach(card => {
       const canvas = card.querySelector('.piece-preview');
       if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
+      const prevCtx = canvas.getContext('2d');
+      prevCtx.imageSmoothingEnabled = false;
 
       const theme = card.dataset.theme;
-      const themeFns = getSpriteFunctions(theme);
 
       // Create a temp 32x32 canvas and draw the king as preview
       const temp = document.createElement('canvas');
       temp.width = temp.height = 32;
       const tempCtx = temp.getContext('2d');
 
+      // Try animated theme function first
+      const animPrefix = ANIMATED_THEME_FN_NAMES[theme];
+      if (animPrefix) {
+        const fn = window['draw' + animPrefix + 'King'];
+        if (typeof fn === 'function') {
+          fn(tempCtx, 'idle');
+          prevCtx.drawImage(temp, 0, 0, canvas.width, canvas.height);
+          return;
+        }
+      }
+
+      // Fall back to static theme functions
+      const themeFns = getSpriteFunctions(theme);
       if (themeFns && themeFns.king) {
         themeFns.king(tempCtx);
       } else {
@@ -1738,7 +1834,7 @@ window.addEventListener('error', function(e) {
       }
 
       // Scale to preview canvas (64x64 for new dossier cards)
-      ctx.drawImage(temp, 0, 0, canvas.width, canvas.height);
+      prevCtx.drawImage(temp, 0, 0, canvas.width, canvas.height);
     });
   }
 
