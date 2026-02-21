@@ -70,6 +70,8 @@ window.addEventListener('error', function(e) {
 
   // === SPRITE CACHE ===
   const sprites = {};
+  let spriteSheetImage = null;
+  let spriteSheetLoaded = false;
 
   // === THEME CONFIGURATION ===
   let gameConfig = {
@@ -172,7 +174,131 @@ window.addEventListener('error', function(e) {
     return null;
   }
 
+  // ============================================================
+  // SPRITE SHEET LOADER (Hero's Relic Set)
+  // ============================================================
+  function loadSpriteSheet() {
+    return new Promise((resolve, reject) => {
+      if (spriteSheetLoaded && spriteSheetImage) {
+        resolve();
+        return;
+      }
+
+      const img = new Image();
+      img.onload = function() {
+        spriteSheetImage = img;
+        spriteSheetLoaded = true;
+        console.log('Sprite sheet loaded:', img.width, 'x', img.height);
+        resolve();
+      };
+      img.onerror = function() {
+        console.warn('Failed to load sprite sheet, falling back to programmatic sprites');
+        spriteSheetLoaded = false;
+        resolve(); // Resolve anyway to allow fallback
+      };
+      img.src = 'chess-pieces-sprite.png';
+    });
+  }
+
+  function extractSpriteFromSheet(sx, sy) {
+    if (!spriteSheetImage || !spriteSheetLoaded) return null;
+    
+    // Validate coordinates
+    if (sx + 32 > spriteSheetImage.width || sy + 32 > spriteSheetImage.height) {
+      console.warn('Sprite extraction out of bounds:', sx, sy, 'Image size:', spriteSheetImage.width, 'x', spriteSheetImage.height);
+      return null;
+    }
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    
+    // Extract 32x32 sprite from sprite sheet
+    ctx.drawImage(spriteSheetImage, sx, sy, 32, 32, 0, 0, 32, 32);
+    return canvas;
+  }
+
+  function createSpritesFromSheet() {
+    if (!spriteSheetLoaded || !spriteSheetImage) {
+      return false;
+    }
+
+    console.log('Creating sprites from sheet. Image dimensions:', spriteSheetImage.width, 'x', spriteSheetImage.height);
+
+    // Sprite sheet layout (32x32 sprites):
+    // Top row (light/white pieces): King, Queen, Rook, Rook, Bishop, Bishop, Knight, Pawn, Pawn, Pawn, Pawn, Pawn
+    // Second row (dark/black pieces): King, Queen, Rook, Rook, Bishop, Bishop, Knight, Pawn, Pawn, Pawn, Pawn, Pawn
+    
+    const pieceOrder = ['king', 'queen', 'rook', 'rook', 'bishop', 'bishop', 'knight', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn'];
+    const spriteSize = 32;
+    
+    // Track which pieces we've already extracted (use first occurrence)
+    const extractedWhite = {};
+    const extractedBlack = {};
+    
+    // Extract white pieces (top row, y=0)
+    for (let i = 0; i < pieceOrder.length; i++) {
+      const pieceType = pieceOrder[i];
+      if (!extractedWhite[pieceType]) {
+        const sprite = extractSpriteFromSheet(i * spriteSize, 0);
+        if (sprite) {
+          sprites['white_' + pieceType] = sprite;
+          extractedWhite[pieceType] = true;
+          console.log('Extracted white', pieceType, 'from position', i * spriteSize, 0);
+        }
+      }
+    }
+    
+    // Extract black pieces (second row, y=32)
+    for (let i = 0; i < pieceOrder.length; i++) {
+      const pieceType = pieceOrder[i];
+      if (!extractedBlack[pieceType]) {
+        const sprite = extractSpriteFromSheet(i * spriteSize, spriteSize);
+        if (sprite) {
+          sprites['black_' + pieceType] = sprite;
+          extractedBlack[pieceType] = true;
+          console.log('Extracted black', pieceType, 'from position', i * spriteSize, spriteSize);
+        }
+      }
+    }
+    
+    // Verify we got all pieces
+    const expectedPieces = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn'];
+    let allFound = true;
+    for (const piece of expectedPieces) {
+      if (!sprites['white_' + piece] || !sprites['black_' + piece]) {
+        console.warn('Missing sprite:', piece, 'white:', !!sprites['white_' + piece], 'black:', !!sprites['black_' + piece]);
+        allFound = false;
+      }
+    }
+    
+    if (allFound) {
+      console.log('Successfully loaded all sprites from sprite sheet');
+      return true;
+    } else {
+      console.warn('Some sprites missing from sprite sheet, falling back to programmatic sprites');
+      // Clear partial sprites so fallback works properly
+      for (const piece of expectedPieces) {
+        delete sprites['white_' + piece];
+        delete sprites['black_' + piece];
+      }
+      return false;
+    }
+  }
+
   function createAllSprites() {
+    // Try to load sprites from sprite sheet first
+    if (spriteSheetLoaded && spriteSheetImage) {
+      const success = createSpritesFromSheet();
+      if (success) {
+        console.log('Using sprite sheet for pieces');
+        return;
+      }
+    }
+
+    // Fallback to programmatic sprites
     const pieces = ['Pawn', 'Rook', 'Knight', 'Bishop', 'Queen', 'King'];
     const sides = [
       { themeKey: gameConfig.whitePieces, color: 'white' },
@@ -1838,7 +1964,7 @@ window.addEventListener('error', function(e) {
     });
   }
 
-  function startGameWithConfig() {
+  async function startGameWithConfig() {
     // Update UI labels based on config
     const whiteName = THEME_NAMES[gameConfig.whitePieces] || gameConfig.whitePieces;
     const blackName = THEME_NAMES[gameConfig.blackPieces] || gameConfig.blackPieces;
@@ -1853,7 +1979,8 @@ window.addEventListener('error', function(e) {
     if (powLabelWhite) powLabelWhite.textContent = `CAPTURED ${whiteName.toUpperCase()}`;
     if (powLabelBlack) powLabelBlack.textContent = `CAPTURED ${blackName.toUpperCase()}`;
 
-    // Create sprites based on selected themes
+    // Load sprite sheet first, then create sprites
+    await loadSpriteSheet();
     createAllSprites();
     drawRamsayPortrait("neutral");
     checkServerStatus();
